@@ -1,15 +1,3 @@
-%error = ForceRequiredAddOn("Projectile_Radio_Wave");
-
-if (!isObject(radioWaveExplosionSound))
-{
-	datablock AudioProfile(radioWaveExplosionSound)
-	{
-	   filename    = "./resources/radioWaveExplosion.wav";
-	   description = AudioClosest3d;
-	   preload = true;
-	};
-}
-
 datablock ParticleData(electrocuteParticle)
 {
 	dragCoefficient		= 3.0;

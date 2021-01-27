@@ -304,7 +304,7 @@ datablock ShapeBaseImageData(SimpleChargeImageFramework_Auto)
 
 function SimpleChargeImage::onFire(%this,%obj,%slot)
 {
-	if (%obj.weaponCharge[%obj.currTool] < %this.discharge)
+	if (%obj.weaponCharge[%obj.currTool] < %this.discharge || %obj.getDamagePercent() >= 1.0)
 	{
 		%obj.setImageAmmo(%slot, 0);
 		bottomPrintEnergyLevel(%obj);
@@ -319,12 +319,8 @@ function SimpleChargeImage::onFire(%this,%obj,%slot)
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	%obj.setVelocity(VectorAdd(%obj.getVelocity(),VectorScale(%obj.client.player.getEyeVector(),%this.recoilVelocity)));
-
-	if(%obj.getDamagePercent() < 1.0)
-	{
-		%obj.playThread(2, plant);
-	}
+	%obj.playThread(2, plant);
+	
 	%projectile = %this.projectile;
 	%spread = %this.spread;
 	%shellcount = getMax(1, %this.shellcount);
