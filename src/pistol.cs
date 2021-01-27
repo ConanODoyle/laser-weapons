@@ -128,8 +128,11 @@ datablock ShapeBaseImageData(redHandheldImage : SimpleChargeImageFramework_SemiA
 
 	stateTimeoutValue[1] = 0.06; //reload check state timeout override;
 	stateTimeoutValue[4] = 0.01; //fire state timeout override
-	stateSound[4]		 = LaserHHFire_Sound;
 	stateTimeoutValue[5] = 0.01; //smoke state timeout override
+
+	stateSound[4]			= LaserShot_Sound;
+	stateEmitter[5]			= LaserSmokeEmitter;
+	stateEmitterTime[5]		= 0.10;
 };
 
 function redHandheldImage::onFire(%this, %obj, %slot)

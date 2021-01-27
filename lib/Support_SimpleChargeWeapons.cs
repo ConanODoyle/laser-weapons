@@ -235,12 +235,9 @@ datablock ShapeBaseImageData(SimpleChargeImageFramework_SemiAuto)
 	stateAllowImageChange[4]			= false;
 	stateSequence[4]					= "Fire";
 	stateScript[4]						= "onFire";
-	stateSound[4]						= LaserShot_Sound;
 
 	stateName[5]						= "Smoke";
 	stateTimeoutValue[5]				= 0.1;
-	stateEmitter[5]						= LaserSmokeEmitter;
-	stateEmitterTime[5]					= 0.10;	
 	stateWaitForTimeout[5]				= true;
 	stateTransitionOnTimeout[5]			= "PostFire";
 
@@ -290,12 +287,9 @@ datablock ShapeBaseImageData(SimpleChargeImageFramework_Auto)
 	stateAllowImageChange[4]			= false;
 	stateSequence[4]					= "Fire";
 	stateScript[4]						= "onFire";
-	stateSound[4]						= LaserShot_Sound;
 
 	stateName[5]						= "Smoke";
 	stateTimeoutValue[5]				= 0.1;
-	stateEmitter[5]						= LaserSmokeEmitter;
-	stateEmitterTime[5]					= 0.10;	
 	stateWaitForTimeout[5]				= true;
 	stateTransitionOnTimeout[5]			= "AmmoCheck";
 
