@@ -1,7 +1,7 @@
 //smg
 datablock ProjectileData(ChargeLaserSMGProjectile : ChargeLaserPistolProjectile)
 {
-	directDamage        = 8;
+	directDamage        = 1;
 	directDamageType    = $DamageType::SMG;
 	radiusDamageType    = $DamageType::SMG;
 };
@@ -53,10 +53,13 @@ datablock ShapeBaseImageData(ChargeSMGImage : SimpleChargeImageFramework_Auto)
 	maxCharge = 240; //clip
 	chargeRate = 6; //how fast to reload
 	chargeTickTime = 85; //time between charge ticks, in milliseconds
-	discharge = 10; //fire cost
+	discharge = 1; //fire cost
 	chargeDisableTime = 1800; //time between firing and charging resuming
-	spread = 0.0022; //larger = more spread
+	spread = 0.0025; //larger = more spread
 	shellCount = 1; //projectiles per fire state
+	
+	markerLightSpread = 0.0012;
+	markerLightSupport = 1;
 
 	stateTimeoutValue[1] = 0.06; //reload check state timeout override;
 	stateTimeoutValue[4] = 0.01; //fire state timeout override
@@ -72,4 +75,12 @@ function ChargeSMGImage::onFire(%this, %obj, %slot)
 	SimpleChargeImage::onFire(%this, %obj, %slot);
 	cancel(%obj.releaseSoundSchedule);
 	%obj.releaseSoundSchedule = schedule(200, %obj, playSMGReleaseSound, %obj);
+}
+
+function ChargeSMGImage::onUnmount(%this, %obj, %slot)
+{
+	if (isObject(%obj.client))
+	{
+		%obj.client.bottomprint("", 1, 1);
+	}
 }

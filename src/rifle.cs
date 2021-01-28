@@ -62,8 +62,11 @@ datablock ShapeBaseImageData(ChargeRifleImage : SimpleChargeImageFramework_SemiA
 	chargeTickTime = 85; //time between charge ticks, in milliseconds
 	discharge = 10; //fire cost
 	chargeDisableTime = 2000; //time between firing and charging resuming
-	spread = 0.00001; //larger = more spread
+	spread = 0.0004; //larger = more spread
 	shellCount = 1; //projectiles per fire state
+
+	markerLightSpread = 0.0001;
+	markerLightSupport = 1;
 
 	stateTimeoutValue[4] = 0.1; //fire state timeout override
 	stateTimeoutValue[5] = 0.4; //smoke state timeout override
@@ -76,4 +79,12 @@ datablock ShapeBaseImageData(ChargeRifleImage : SimpleChargeImageFramework_SemiA
 function ChargeRifleImage::onFire(%this, %obj, %slot)
 {
 	SimpleChargeImage::onFire(%this, %obj, %slot);
+}
+
+function ChargeRifleImage::onUnmount(%this, %obj, %slot)
+{
+	if (isObject(%obj.client))
+	{
+		%obj.client.bottomprint("", 1, 1);
+	}
 }

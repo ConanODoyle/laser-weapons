@@ -49,7 +49,7 @@ package Support_SimpleChargeWeapons
 			%obj.weaponCharge[%obj.currTool] = %this.maxCharge;
 		}
 
-		bottomPrintEnergyLevel(%obj);
+		SimpleCharge_BottomprintEnergyLevel(%obj);
 	}
 };
 activatePackage(Support_SimpleChargeWeapons);
@@ -72,7 +72,7 @@ function SimpleWeaponChargeLoop()
 		}
 	}
 
-	$SimpleWeaponChargeSchedule = %pl.schedule(33, chargeAllWeapons);
+	$SimpleWeaponChargeSchedule = schedule(33, MissionCleanup, SimpleWeaponChargeLoop);
 }
 
 function Player::chargeAllWeapons(%pl)
@@ -102,32 +102,38 @@ function Player::chargeAllWeapons(%pl)
 			%currCharge = %maxCharge - %chargeRate;
 		}
 
+		%equipped = 1;
+		if (%pl.currTool != %i || %pl.getMountedImage(0) != %pl.tool[%i].image.getID())
+		{
+			%chargeRate = mCeil(%chargeRate / 5);
+			%equipped = 0;
+		}
+
 		if (%currCharge < %maxCharge && %pl.nextChargeTime[%i] < getSimTime())
 		{
-			// talk("Charging " @ %img.getName() @ ": " @ %chargeRate SPC getSimTime());
 			%currCharge = getMin(%currCharge + %chargeRate, %maxCharge);
 			%pl.weaponCharge[%i] = %currCharge;
 			%pl.nextChargeTime[%i] = (getSimTime() + %chargeTickTime) | 0;
-			if (%pl.currTool == %i)
+			if (%equipped)
 			{
 				if (%pl.tickSound > 1)
 				{
 					%pl.playthread(0, shiftRight);
-					serverPlay3D(brickMoveSound, %pl.getPosition());
+					serverPlay3D(Beep_Key_Sound, %pl.getPosition());
 				}
 				
 				%pl.tickSound = (%pl.tickSound + 1) % 3;
 			}
 		}
 
-		if (%maxCharge > 0 && %pl.currTool == %i)
+		if (%maxCharge > 0 && %equipped)
 		{
-			bottomPrintEnergyLevel(%pl);
+			SimpleCharge_BottomprintEnergyLevel(%pl);
 		}
 	}
 }
 
-function bottomPrintEnergyLevel(%obj)
+function SimpleCharge_BottomprintEnergyLevel(%obj)
 {
 	if (!isObject(%obj.client) || %obj.getClassName() $= "AIPlayer" || %obj.currTool < 0 || %obj.client.doNotDisplay)
 		return;
@@ -161,7 +167,7 @@ function bottomPrintEnergyLevel(%obj)
 		%chargeInfo = "<font:Tahoma:15>\c6" @ %currCharge SPC "<font:Arial:28>" @ createBarCharge(%maxcharge, %currCharge);
 	//%storedInfo = "<font:Tahoma:15>\c3STORED\c6: " @ %storedCharge @ "/" @ $Pref::EnergyAmmo::maxStoredEnergy;// SPC "<font:Arial:20>" @ createBarCharge($Pref::EnergyAmmo::maxStoredEnergy, %storedCharge);
 
-	%obj.client.bottomprint("<just:right>" @ %gunInfo @ "<font:Tahoma:15> <br>" @ %chargeInfo @ "<font:Tahoma:15> <br>" @ %storedInfo @ "<font:Tahoma:15> ", 100, 1);
+	%obj.client.bottomprint("<just:right>" @ %gunInfo @ "<font:Tahoma:15> <br>" @ %chargeInfo @ "<font:Tahoma:15> <br>" @ %storedInfo @ "<font:Tahoma:15> ", 1, 1);
 }
 
 function createBarCharge(%maxcharge, %currCharge)
@@ -302,32 +308,49 @@ datablock ShapeBaseImageData(SimpleChargeImageFramework_Auto)
 	stateTransitionOnTimeout[6]			= "Ready";
 };
 
-function SimpleChargeImage::onFire(%this,%obj,%slot)
+function SimpleChargeImage::onFire(%this, %obj, %slot)
 {
 	if (%obj.weaponCharge[%obj.currTool] < %this.discharge || %obj.getDamagePercent() >= 1.0)
 	{
 		%obj.setImageAmmo(%slot, 0);
-		bottomPrintEnergyLevel(%obj);
+		SimpleCharge_BottomprintEnergyLevel(%obj);
 		return;
 	}
 
 	%obj.weaponCharge[%obj.currTool] -= %this.discharge;
 	%obj.nextChargeTime[%obj.currTool] = (getSimTime() + %this.chargeDisableTime) | 0;
 
-	bottomPrintEnergyLevel(%obj);
+	SimpleCharge_BottomprintEnergyLevel(%obj);
 	%obj.spawnExplosion(BigRecoilProjectile, 0.3);
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	%obj.playThread(2, plant);
-	
+
 	%projectile = %this.projectile;
 	%spread = %this.spread;
 	%shellcount = getMax(1, %this.shellcount);
 
-	for(%shell=0; %shell<%shellcount; %shell++)
+	if (%this.markerlightSupport)
 	{
-		%vector = %obj.getMuzzleVector(%slot);
+		%muzzleVector = getMarkerlightVector(%obj, %this.projectile, "", "", %obj.getMuzzleVector(%slot), %obj.getMuzzlePoint(%slot));
+		%foundTarget = getField(%muzzleVector, 1);
+		%muzzleVector = getField(%muzzleVector, 0);
+
+		if (isObject(%foundTarget))
+		{
+			echo("FOUND TARGET: " @ %foundTarget);
+			%spread = %this.markerlightSpread;
+		}
+	}
+	else
+	{
+		%muzzleVector = %obj.getMuzzleVector(%slot);
+	}
+
+	for(%shell = 0; %shell < %shellcount; %shell++)
+	{
+		%vector = %muzzleVector;
 		%objectVelocity = %obj.getVelocity();
 		%vector1 = VectorScale(%vector, %projectile.muzzleVelocity);
 		%vector2 = VectorScale(%objectVelocity, %projectile.velInheritFactor);

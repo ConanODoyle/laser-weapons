@@ -6,10 +6,10 @@ datablock ProjectileData(ChargeLaserPistolProjectile)
 	radiusDamageType    = $DamageType::Pistol;
 
 	brickExplosionRadius = 0;
-	brickExplosionImpact = true; 
-	brickExplosionForce  = 5;
-	brickExplosionMaxVolume = 15;
-	brickExplosionMaxVolumeFloating = 20;  
+	brickExplosionImpact = true;
+	brickExplosionForce  = 0;
+	brickExplosionMaxVolume = 0;
+	brickExplosionMaxVolumeFloating = 0;
 
 	impactImpulse	     = 0;
 	verticalImpulse	  = 3;
@@ -17,7 +17,7 @@ datablock ProjectileData(ChargeLaserPistolProjectile)
 	particleEmitter     = ChargeLaserTracer;
 
 	muzzleVelocity      = 100;
-	velInheritFactor    = 1;
+	velInheritFactor    = 0;
 
 	armingDelay         = 00;
 	lifetime            = 30000;
@@ -105,4 +105,12 @@ datablock ShapeBaseImageData(ChargePistolImage : SimpleChargeImageFramework_Semi
 function ChargePistolImage::onFire(%this, %obj, %slot)
 {
 	SimpleChargeImage::onFire(%this, %obj, %slot);
+}
+
+function ChargePistolImage::onUnmount(%this, %obj, %slot)
+{
+	if (isObject(%obj.client))
+	{
+		%obj.client.bottomprint("", 1, 1);
+	}
 }

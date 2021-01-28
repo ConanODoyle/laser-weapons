@@ -107,7 +107,6 @@ datablock ExplosionData(electrocuteSmogExplosion)
 	lightEndColor = "0 0 0";
 };
 
-AddDamageType("electrocutegun",   '<bitmap:add-ons/Weapon_Package_Tier1/ci_smg1> %1',    '%2 <bitmap:add-ons/Weapon_Package_Tier1/ci_smg1> %1',0.75,1);
 datablock ProjectileData(electrocuteProjectile)
 {
 	directDamage        = 15;
