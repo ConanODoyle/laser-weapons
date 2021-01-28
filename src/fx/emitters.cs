@@ -109,3 +109,84 @@ datablock ParticleEmitterData(LaserSmokeEmitter)
 
 	particles = "LaserSmokeParticle";
 };
+
+
+
+
+datablock ParticleData(ChargeLaserExplosionParticle)
+{
+	dragCoefficient      = 0;
+	gravityCoefficient   = 0;
+	inheritedVelFactor   = 0.2;
+	constantAcceleration = 0;
+	lifetimeMS           = 100;
+	lifetimeVarianceMS   = 50;
+	textureName          = "base/data/particles/dot";
+	spinSpeed		= 10.0;
+	spinRandomMin		= -50.0;
+	spinRandomMax		= 50.0;
+	colors[0]     = "1 0 0 1";
+	colors[1]     = "1 0.3 0.1 0";
+	sizes[0]      = 0.18;
+	sizes[1]      = 0.09;
+
+	useInvAlpha = false;
+};
+
+datablock ParticleEmitterData(ChargeLaserExplosionEmitter)
+{
+	ejectionPeriodMS = 50;
+	periodVarianceMS = 30;
+	ejectionVelocity = 2;
+	velocityVariance = 1.0;
+	ejectionOffset   = 0;
+	thetaMin         = 50;
+	thetaMax         = 60;
+	phiReferenceVel  = 0;
+	phiVariance      = 360;
+	overrideAdvance = false;
+	particles = "ChargeLaserExplosionParticle";
+
+	useEmitterColors = true;
+	uiName = "ChargeLaserExplosion";
+};
+
+datablock ParticleData(ChargeLaserExplosionRingParticle)
+{
+	dragCoefficient      = 8;
+	gravityCoefficient   = 0;
+	inheritedVelFactor   = 0.2;
+	constantAcceleration = 0.0;
+	lifetimeMS           = 50;
+	lifetimeVarianceMS   = 35;
+	textureName          = "base/data/particles/ring";
+	spinSpeed		= 500.0;
+	spinRandomMin		= -500.0;
+	spinRandomMax		= 500.0;
+	colors[0]     = "1 0 0 1";
+	colors[1]     = "1 0 0 1";
+	sizes[0]      = 1;
+	sizes[1]      = 0;
+
+	useInvAlpha = false;
+};
+
+datablock ParticleEmitterData(ChargeLaserExplosionRingEmitter)
+{
+	lifeTimeMS = 50;
+
+	ejectionPeriodMS = 25;
+	periodVarianceMS = 0;
+	ejectionVelocity = 0;
+	velocityVariance = 0.0;
+	ejectionOffset   = 0.0;
+	thetaMin         = 89;
+	thetaMax         = 90;
+	phiReferenceVel  = 0;
+	phiVariance      = 360;
+	overrideAdvance = false;
+	particles = "ChargeLaserExplosionRingParticle";
+
+	useEmitterColors = true;
+	uiName = "ChargeLaserExplosionRing";
+};

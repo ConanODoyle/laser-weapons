@@ -10,23 +10,23 @@ if (!isObject(radioWaveExplosionSound))
 	};
 }
 
-datablock AudioProfile(ChargeLaserBlast1Sound)
+datablock AudioProfile(ChargeLaserBlastSound)
 {
 	filename = "./resources/laserblast1.wav";
 	description = AudioClose3d;
 	preload = true;
 };
 
-datablock AudioProfile(ChargeLaserRifleBlast1Sound)
+datablock AudioProfile(ChargeLaserRifleBlastSound)
 {
-	filename = "./resources/laserifleblast1.wav";
+	filename = "./resources/laserrifleblast1.wav";
 	description = AudioClose3d;
 	preload = true;
 };
 
 datablock AudioProfile(ChargeLaserQuadshotSound)
 {
-	filename = "./resources/laserquadshot.wav";
+	filename = "./resources/quadshot.wav";
 	description = AudioClose3d;
 	preload = true;
 };

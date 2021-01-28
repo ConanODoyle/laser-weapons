@@ -1,30 +1,29 @@
 //rifle
-datablock ProjectileData(ChargeLaserFALProjectile : ChargeLaserPistolProjectile)
+datablock ProjectileData(ChargeLaserRifleProjectile : ChargeLaserPistolProjectile)
 {
 	directDamage        = 40;
 	directDamageType    = $DamageType::DMR;
 	radiusDamageType    = $DamageType::DMR;
 
-	muzzleVelocity = 150;
-	particleEmitter     = ChargeLaserRifleTracer;
+	muzzleVelocity = 200;
+	particleEmitter     = HeavyChargeLaserTracer;
 };
 
-datablock ItemData(ChargeFALItem : ChargePistolItem)
+datablock ItemData(ChargeRifleItem : ChargePistolItem)
 {
-	shapeFile = "Add-ons/Gamemode_Core_Rush/src/weps/res/LEECH_RIFLE_DMR_Charge.dts";
+	shapeFile = "./resources/rifle.dts";
 
-	uiName = "Charge Leech R.";
+	uiName = "Charge Rifle";
 	iconName = "Add-ons/Gamemode_Core_Rush/src/img/Icon_mid-range";
 	doColorShift = true;
-	colorShiftColor = "1 0 0 1";
+	colorShiftColor = "1 1 1 1";
 
-	image = ChargeFALImage;
+	image = ChargeRifleImage;
 };
 
-datablock ShapeBaseImageData(ChargeFALImage : SimpleChargeImageFramework_SemiAuto)
+datablock ShapeBaseImageData(ChargeRifleImage : SimpleChargeImageFramework_SemiAuto)
 {
-   // Basic Item properties
-	shapeFile = "Add-ons/Gamemode_Core_Rush/src/weps/res/LEECH_RIFLE_DMR_Charge.dts";
+	shapeFile = "./resources/rifle.dts";
 	emap = true;
 
 	mountPoint = 0;
@@ -39,9 +38,9 @@ datablock ShapeBaseImageData(ChargeFALImage : SimpleChargeImageFramework_SemiAut
 	chargeRate = 30; //how fast to reload
 	discharge = 30; //cost
 
-	item = ChargeFALItem;
+	item = ChargeRifleItem;
 	ammo = " ";
-	projectile = ChargeLaserFALProjectile;
+	projectile = ChargeLaserRifleProjectile;
 	projectileType = Projectile;
 
 	casing = gunShellDebris;
@@ -50,19 +49,19 @@ datablock ShapeBaseImageData(ChargeFALImage : SimpleChargeImageFramework_SemiAut
 	shellExitVariance   = 15.0;	
 	shellVelocity       = 7.0;
 
-	melee = false;
+	melee = Riflese;
 
 	armReady = true;
 
 	doColorShift = true;
-	colorShiftColor = ChargeFALItem.colorShiftColor;
+	colorShiftColor = ChargeRifleItem.colorShiftColor;
 
 	// Weapon properties
-	maxCharge = 120; //clip
-	chargeRate = 4; //how fast to reload
-	chargeTickTime = 50; //time between charge ticks, in milliseconds
-	discharge = 15; //fire cost
-	chargeDisableTime = 1500; //time between firing and charging resuming
+	maxCharge = 100; //clip
+	chargeRate = 2; //how fast to reload
+	chargeTickTime = 85; //time between charge ticks, in milliseconds
+	discharge = 10; //fire cost
+	chargeDisableTime = 2000; //time between firing and charging resuming
 	spread = 0.00001; //larger = more spread
 	shellCount = 1; //projectiles per fire state
 
@@ -74,7 +73,7 @@ datablock ShapeBaseImageData(ChargeFALImage : SimpleChargeImageFramework_SemiAut
 	stateEmitterTime[5]		= 0.4;
 };
 
-function ChargeFALImage::onFire(%this, %obj, %slot)
+function ChargeRifleImage::onFire(%this, %obj, %slot)
 {
 	SimpleChargeImage::onFire(%this, %obj, %slot);
 }

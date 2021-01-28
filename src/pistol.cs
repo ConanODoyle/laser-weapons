@@ -1,7 +1,7 @@
 //Pistol
 datablock ProjectileData(ChargeLaserPistolProjectile)
 {
-	directDamage        = 15;
+	directDamage        = 17;
 	directDamageType    = $DamageType::Pistol;
 	radiusDamageType    = $DamageType::Pistol;
 
@@ -48,7 +48,7 @@ datablock ItemData(ChargePistolItem)
 	uiName = "Charge Pistol";
 	iconName = "Add-ons/Gamemode_Core_Rush/src/img/Icon_pistol";
 	doColorShift = true;
-	colorShiftColor = "1 0 0 1";
+	colorShiftColor = "1 1 1 1";
 
 	image = ChargePistolImage;
 	canDrop = true;
@@ -85,12 +85,12 @@ datablock ShapeBaseImageData(ChargePistolImage : SimpleChargeImageFramework_Semi
 	colorShiftColor = ChargePistolItem.colorShiftColor;
 
 	// Weapon properties
-	maxCharge = 60; //clip
-	chargeRate = 3; //how fast to reload
+	maxCharge = 120; //clip
+	chargeRate = 5; //how fast to reload
 	chargeTickTime = 50; //time between charge ticks, in milliseconds
-	discharge = 12; //fire cost
-	chargeDisableTime = 1000; //time between firing and charging resuming
-	spread = 0.0002; //larger = more spread
+	discharge = 10; //fire cost
+	chargeDisableTime = 800; //time between firing and charging resuming
+	spread = 0.001; //larger = more spread
 	shellCount = 1; //projectiles per fire state
 
 	stateTimeoutValue[1] = 0.08; //reload check state timeout override;

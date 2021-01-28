@@ -8,13 +8,13 @@ datablock ProjectileData(ChargeLaserSMGProjectile : ChargeLaserPistolProjectile)
 
 datablock ItemData(ChargeSMGItem : ChargePistolItem)
 {
-	shapeFile = "Add-ons/Gamemode_Core_Rush/src/weps/res/LEECH_REPEATER_Charge.dts";
+	shapeFile = "./resources/smg.dts";
 
 	//gui stuff
-	uiName = "Charge Leech Repeater";
+	uiName = "Charge SMG";
 	iconName = "Add-ons/Gamemode_Core_Rush/src/img/Icon_smg";
 	doColorShift = true;
-	colorShiftColor = "1 0 0 1";
+	colorShiftColor = "1 1 1 1";
 
 	// Dynamic properties defined by the scripts
 	image = ChargeSMGImage;
@@ -22,8 +22,7 @@ datablock ItemData(ChargeSMGItem : ChargePistolItem)
 
 datablock ShapeBaseImageData(ChargeSMGImage : SimpleChargeImageFramework_Auto)
 {
-
-	shapeFile = "Add-ons/Gamemode_Core_Rush/src/weps/res/LEECH_REPEATER_Charge.dts";
+	shapeFile = "./resources/smg.dts";
 	emap = true;
 	mountPoint = 0;
 	offset = "0 0 0";
@@ -51,18 +50,18 @@ datablock ShapeBaseImageData(ChargeSMGImage : SimpleChargeImageFramework_Auto)
 	colorShiftColor = ChargeSMGItem.colorShiftColor;
 
 	// Weapon properties
-	maxCharge = 120; //clip
-	chargeRate = 2; //how fast to reload
-	chargeTickTime = 65; //time between charge ticks, in milliseconds
-	discharge = 6; //fire cost
-	chargeDisableTime = 1500; //time between firing and charging resuming
-	spread = 0.005; //larger = more spread
+	maxCharge = 240; //clip
+	chargeRate = 6; //how fast to reload
+	chargeTickTime = 85; //time between charge ticks, in milliseconds
+	discharge = 10; //fire cost
+	chargeDisableTime = 1800; //time between firing and charging resuming
+	spread = 0.0022; //larger = more spread
 	shellCount = 1; //projectiles per fire state
 
 	stateTimeoutValue[1] = 0.06; //reload check state timeout override;
 	stateTimeoutValue[4] = 0.01; //fire state timeout override
 	stateTimeoutValue[5] = 0.013; //smoke state timeout override
-	
+
 	stateSound[4]			= ChargeLaserBlastSound;
 	stateEmitter[5]			= LaserSmokeEmitter;
 	stateEmitterTime[5]		= 0.20;
