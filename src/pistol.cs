@@ -86,10 +86,10 @@ datablock ShapeBaseImageData(ChargePistolImage : SimpleChargeImageFramework_Semi
 
 	// Weapon properties
 	maxCharge = 120; //clip
-	chargeRate = 5; //how fast to reload
+	chargeRate = 3; //how fast to reload
 	chargeTickTime = 50; //time between charge ticks, in milliseconds
 	discharge = 10; //fire cost
-	chargeDisableTime = 800; //time between firing and charging resuming
+	chargeDisableTime = 600; //time between firing and charging resuming
 	spread = 0.001; //larger = more spread
 	shellCount = 1; //projectiles per fire state
 
@@ -112,5 +112,6 @@ function ChargePistolImage::onUnmount(%this, %obj, %slot)
 	if (isObject(%obj.client))
 	{
 		%obj.client.bottomprint("", 1, 1);
+		%obj.client.centerprint("", 1);
 	}
 }

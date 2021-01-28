@@ -49,6 +49,25 @@ package Support_SimpleChargeWeapons
 			%obj.weaponCharge[%obj.currTool] = %this.maxCharge;
 		}
 
+		if (%this.markerlightSupport && isFunction(getMarkerlightVector) && isObject(%obj.client))
+		{
+			%searchProj = isObject(%this.markerlightProjectile) ? %this.markerlightProjectile : %this.projectile;
+
+			%muzzleVector = getMarkerlightVector(%obj, %searchProj, %this.markerlightMaxRange, 
+				%this.markerlightMaxAngle, %obj.getMuzzleVector(%slot), %obj.getMuzzlePoint(%slot));
+			%foundTarget = getField(%muzzleVector, 1);
+			%muzzleVector = getField(%muzzleVector, 0);
+
+			if (%foundTarget)
+			{
+				%obj.client.centerprint("<font:Consolas:16>\c2[[MARKERLIGHT FOUND]]", 1);
+			}
+			else
+			{
+				%obj.client.centerprint("<font:Consolas:16>\c0[[NO MARKERLIGHT FOUND]]", 1);
+			}
+		}
+
 		SimpleCharge_BottomprintEnergyLevel(%obj);
 	}
 };
@@ -160,47 +179,44 @@ function SimpleCharge_BottomprintEnergyLevel(%obj)
 	else
 		%color = "\c4";
 
-	//%gunInfo = "<font:Tahoma:22>\c3" @ %image.discharge @ "<font:Tahoma:15>\c6 ENERGY/shot"; 
-	if (%obj.weaponCharge[%obj.currTool] $= "")
-		%chargeInfo = "<font:Tahoma:15>\c3ENERGY\c6: CHECKING" SPC "<font:Arial:24>" @ createBarCharge(%maxcharge, %currCharge);
-	else
-		%chargeInfo = "<font:Tahoma:15>\c6" @ %currCharge SPC "<font:Arial:28>" @ createBarCharge(%maxcharge, %currCharge);
-	//%storedInfo = "<font:Tahoma:15>\c3STORED\c6: " @ %storedCharge @ "/" @ $Pref::EnergyAmmo::maxStoredEnergy;// SPC "<font:Arial:20>" @ createBarCharge($Pref::EnergyAmmo::maxStoredEnergy, %storedCharge);
+	%gunInfo = "<font:Tahoma:16>\c6ENERGY: " @ %currCharge @ " / " @ %maxCharge @ " "; 
+	%chargeInfo = "<font:Impact:20>" @ createPowerChargeBar(%maxcharge, %currCharge, 25, "-");
 
-	%obj.client.bottomprint("<just:right>" @ %gunInfo @ "<font:Tahoma:15> <br>" @ %chargeInfo @ "<font:Tahoma:15> <br>" @ %storedInfo @ "<font:Tahoma:15> ", 1, 1);
+	%obj.client.bottomprint("<just:right>" @ %gunInfo @ "<font:Tahoma:15> <br>" @ %chargeInfo @ " ", 1, 1);
 }
 
-function createBarCharge(%maxcharge, %currCharge)
+function createPowerChargeBar(%maxcharge, %currCharge, %totalBars, %char)
 {
-	%numColoredBars = mFloor(%currCharge/%maxcharge*20);
+	%numColoredBars = mCeil(%currCharge/%maxcharge*%totalBars);
+	%char = %char $= "" ? "=" : %char;
 	%bars = "\c7";
 	%i = 0;
-	for (%i = 0; %i < 20 - %numColoredBars; %i++)
-		%bars = %bars @ "|";
-	if (%i < 10)
+	for (%i = 0; %i < %totalBars - %numColoredBars; %i++)
+		%bars = %bars @ %char;
+	if (%i < mFloor(%totalBars / 2))
 	{
 		%bars = %bars @ "\c4";
-		for (%j = %i; %j < 10; %j++)
+		for (%j = %i; %j < mFloor(%totalBars / 2); %j++)
 		{
-			%bars = %bars @ "|";
+			%bars = %bars @ %char;
 			%i += 1;
 		}
 	}
-	if (%i < 15)
+	if (%i < mFloor(%totalBars * 3 / 4))
 	{
 		%bars = %bars @ "\c3";
-		for (%j = %i; %j < 15; %j++)
+		for (%j = %i; %j < mFloor(%totalBars * 3 / 4); %j++)
 		{
-			%bars = %bars @ "|";
+			%bars = %bars @ %char;
 			%i += 1;
 		}
 	}
-	if (%i < 20)
+	if (%i < %totalBars)
 	{
 		%bars = %bars @ "\c0";
-		for (%j = %i; %j < 20; %j++)
+		for (%j = %i; %j < %totalBars; %j++)
 		{
-			%bars = %bars @ "|";
+			%bars = %bars @ %char;
 			%i += 1;
 		}
 	}
@@ -326,21 +342,25 @@ function SimpleChargeImage::onFire(%this, %obj, %slot)
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	%obj.playThread(2, plant);
+	%obj.tickSound  = 3;
 
 	%projectile = %this.projectile;
 	%spread = %this.spread;
 	%shellcount = getMax(1, %this.shellcount);
 
-	if (%this.markerlightSupport)
+	if (%this.markerlightSupport && isFunction(getMarkerlightVector))
 	{
-		%muzzleVector = getMarkerlightVector(%obj, %this.projectile, "", "", %obj.getMuzzleVector(%slot), %obj.getMuzzlePoint(%slot));
+		%searchProj = isObject(%this.markerlightProjectile) ? %this.markerlightProjectile : %this.projectile;
+		%muzzleVector = getMarkerlightVector(%obj, %searchProj, %this.markerlightMaxRange, 
+			%this.markerlightMaxAngle, %obj.getMuzzleVector(%slot), %obj.getMuzzlePoint(%slot));
 		%foundTarget = getField(%muzzleVector, 1);
 		%muzzleVector = getField(%muzzleVector, 0);
 
 		if (isObject(%foundTarget))
 		{
-			echo("FOUND TARGET: " @ %foundTarget);
-			%spread = %this.markerlightSpread;
+			if (%this.markerlightSpread > 0) %spread = %this.markerlightSpread;
+			if (%this.markerlightProjectile > 0) %projectile = %this.markerlightProjectile;
+			if (%this.markerlightShellCount > 0) %shellCount = %this.markerlightShellCount;
 		}
 	}
 	else
