@@ -168,7 +168,6 @@ function updateMarkerlights(%index)
 		return;
 	}
 
-
 	%count = $MarkerlightSimSet.getCount();
 	if (%index >= %count) { %index = %count - 1; }
 	
