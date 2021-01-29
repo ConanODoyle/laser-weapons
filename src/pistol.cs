@@ -28,7 +28,7 @@ datablock ProjectileData(ChargeLaserPistolProjectile)
 	gravityMod          = 0;
 
 	hasLight    = true;
-	lightRadius = 7.0;
+	lightRadius = 2.0;
 	lightColor  = "1 0 0";
 };
 

@@ -59,8 +59,8 @@ datablock ExplosionData(ChargeLaserExplosion)
 	camShakeRadius = 10.0;
 
 	// Dynamic light
-	lightStartRadius = 10;
-	lightEndRadius = 8;
+	lightStartRadius = 4;
+	lightEndRadius = 2;
 	lightStartColor = "1 0 0";
 	lightEndColor = "0 0 0";
 };
