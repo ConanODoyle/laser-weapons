@@ -278,7 +278,7 @@ function getClosestMarkerlight(%searcher, %maxRange, %maxAngle, %muzzleVector, %
 	for (%i = 0; %i < $MarkerlightSimSet.getCount(); %i++)
 	{
 		%obj = $MarkerlightSimSet.getObject(%i);
-		if (%obj.getDamageState() !$= "Enabled" || !minigameCanDamage(%obj, %searcher))
+		if (%obj.getDamageState() !$= "Enabled" || %obj == %searcher || !minigameCanDamage(%obj, %searcher))
 		{
 			continue;
 		}
