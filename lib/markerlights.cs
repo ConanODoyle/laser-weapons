@@ -283,7 +283,7 @@ function getClosestMarkerlight(%searcher, %maxRange, %maxAngle, %muzzleVector, %
 			continue;
 		}
 
-		//validity checks
+		//validity checks - range, angle, line of sight
 		%objPos = %obj.getPosition();
 		%dist = vectorDist(%objPos, %muzzlePos);
 		if (%dist > %maxRange)
@@ -298,6 +298,16 @@ function getClosestMarkerlight(%searcher, %maxRange, %maxAngle, %muzzleVector, %
 			continue;
 		}
 
+		if (isFunction(%obj.getClassName(), "getHackPosition")) { %targetPos = %obj.getHackPosition(); }
+		else { %targetPos = %obj.getWorldBoxCenter(); }
+
+		%ray = containerRaycast(%muzzlePos, %targetPos, $Typemasks::fxBrickObjectType | $Typemasks::StaticObjectType);
+		%hit = getWord(%ray, 0)
+		if (isObject(%hit) && %hit != %obj)
+		{
+			continue;
+		}
+		
 		//best target selection
 		//change if one of the following:
 		//no value set
@@ -336,14 +346,9 @@ function getMarkerlightVector(%searcher, %projDB, %maxRange, %maxAngle, %muzzleV
 	}
 	else //need to lead target
 	{
-		if (isFunction(%obj.getClassName(), "getHackPosition"))
-		{
-			%targetPos = %obj.getHackPosition();
-		}
-		else
-		{
-			%targetPos = %obj.getWorldBoxCenter();
-		}
+		if (isFunction(%obj.getClassName(), "getHackPosition")) { %targetPos = %obj.getHackPosition(); }
+		else { %targetPos = %obj.getWorldBoxCenter(); }
+
 		%basePos = %obj.getPosition();
 		%diff = vectorSub(%targetPos, %basePos);
 		%targetVel = %obj.getVelocity();
