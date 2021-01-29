@@ -1,7 +1,7 @@
 //smg
 datablock ProjectileData(ChargeLaserSMGProjectile : ChargeLaserPistolProjectile)
 {
-	directDamage        = 10;
+	directDamage        = 12;
 	directDamageType    = $DamageType::SMG;
 	radiusDamageType    = $DamageType::SMG;
 };
