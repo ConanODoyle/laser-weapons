@@ -49,25 +49,6 @@ package Support_SimpleChargeWeapons
 			%obj.weaponCharge[%obj.currTool] = %this.maxCharge;
 		}
 
-		if (%this.markerlightSupport && isFunction(getMarkerlightVector) && isObject(%obj.client))
-		{
-			%searchProj = isObject(%this.markerlightProjectile) ? %this.markerlightProjectile : %this.projectile;
-
-			%muzzleVector = getMarkerlightVector(%obj, %searchProj, %this.markerlightMaxRange, 
-				%this.markerlightMaxAngle, %obj.getMuzzleVector(%slot), %obj.getMuzzlePoint(%slot));
-			%foundTarget = getField(%muzzleVector, 1);
-			%muzzleVector = getField(%muzzleVector, 0);
-
-			if (%foundTarget)
-			{
-				%obj.client.centerprint("<font:Consolas:16>\c2[[MARKERLIGHT FOUND]]", 1);
-			}
-			else
-			{
-				%obj.client.centerprint("<font:Consolas:16>\c0[[NO MARKERLIGHT FOUND]]", 1);
-			}
-		}
-
 		SimpleCharge_BottomprintEnergyLevel(%obj);
 	}
 };
@@ -162,15 +143,9 @@ function SimpleCharge_BottomprintEnergyLevel(%obj)
 	%maxCharge = %image.maxCharge;
 	%itemName = %image.getName();
 	%currCharge = mFloor(%obj.weaponCharge[%obj.currTool]);
-	if (%obj.storedCharge $= "")
-		%obj.storedCharge = $Pref::EnergyAmmo::maxStoredEnergy;
-	%storedCharge = mFloor(%obj.storedCharge);
-
-	if (%storedCharge < 100)
-		%storedCharge = %storedCharge @ "  ";
-	if (%currCharge < 100)
-		%currCharge = %currCharge @ "  ";
 	
+	while (strLen(%currCharge) < 3)
+		%currCharge = " " @ %currCharge;	
 
 	if (%currCharge < %maxCharge/10 || %currCharge < %obj.tool[%obj.currtool].image.discharge*2)
 		%color = "\c0";
@@ -179,10 +154,10 @@ function SimpleCharge_BottomprintEnergyLevel(%obj)
 	else
 		%color = "\c4";
 
-	%gunInfo = "<font:Tahoma:16>\c6ENERGY: " @ %currCharge @ " / " @ %maxCharge @ " "; 
-	%chargeInfo = "<font:Impact:20>" @ createPowerChargeBar(%maxcharge, %currCharge, 25, "-");
+	%gunInfo = "<font:Consolas:16>\c6ENERGY: " @ %currCharge @ " / " @ %maxCharge;
+	%chargeInfo = "<font:Impact:22>" @ createPowerChargeBar(%maxcharge, %currCharge, 30, "I");
 
-	%obj.client.bottomprint("<just:right>" @ %gunInfo @ "<font:Tahoma:15> <br>" @ %chargeInfo @ " ", 1, 1);
+	%obj.client.bottomprint("<just:right>" @ %gunInfo @ " <br>" @ %chargeInfo @ " ", 1, 1);
 }
 
 function createPowerChargeBar(%maxcharge, %currCharge, %totalBars, %char)
@@ -191,30 +166,39 @@ function createPowerChargeBar(%maxcharge, %currCharge, %totalBars, %char)
 	%char = %char $= "" ? "=" : %char;
 	%bars = "\c7";
 	%i = 0;
+
 	for (%i = 0; %i < %totalBars - %numColoredBars; %i++)
+	{
 		%bars = %bars @ %char;
-	if (%i < mFloor(%totalBars / 2))
+	}
+
+	%threshold = mFloor(%totalBars / 2); //blue threshold
+	if (%i < %threshold)
 	{
 		%bars = %bars @ "\c4";
-		for (%j = %i; %j < mFloor(%totalBars / 2); %j++)
+		for (%j = %i; %j < %threshold; %j++)
 		{
 			%bars = %bars @ %char;
 			%i += 1;
 		}
 	}
-	if (%i < mFloor(%totalBars * 3 / 4))
+
+	%threshold = mFloor(%totalBars * 3 / 4); //yellow threshold
+	if (%i < %threshold)
 	{
 		%bars = %bars @ "\c3";
-		for (%j = %i; %j < mFloor(%totalBars * 3 / 4); %j++)
+		for (%j = %i; %j < %threshold; %j++)
 		{
 			%bars = %bars @ %char;
 			%i += 1;
 		}
 	}
-	if (%i < %totalBars)
+
+	%threshold = %totalBars; //red threshold
+	if (%i < %threshold)
 	{
 		%bars = %bars @ "\c0";
-		for (%j = %i; %j < %totalBars; %j++)
+		for (%j = %i; %j < %threshold; %j++)
 		{
 			%bars = %bars @ %char;
 			%i += 1;
@@ -326,6 +310,11 @@ datablock ShapeBaseImageData(SimpleChargeImageFramework_Auto)
 
 function SimpleChargeImage::onFire(%this, %obj, %slot)
 {
+	if (%obj.getClassName() !$= "Player")
+	{
+		%obj.weaponnCharge[%obj.currTool] = %this.discharge;
+	}
+
 	if (%obj.weaponCharge[%obj.currTool] < %this.discharge || %obj.getDamagePercent() >= 1.0)
 	{
 		%obj.setImageAmmo(%slot, 0);
@@ -348,7 +337,7 @@ function SimpleChargeImage::onFire(%this, %obj, %slot)
 	%spread = %this.spread;
 	%shellcount = getMax(1, %this.shellcount);
 
-	if (%this.markerlightSupport && isFunction(getMarkerlightVector))
+	if (%this.markerlightSupport && !%obj.markerlightDisabled && isFunction(getMarkerlightVector))
 	{
 		%searchProj = isObject(%this.markerlightProjectile) ? %this.markerlightProjectile : %this.projectile;
 		%muzzleVector = getMarkerlightVector(%obj, %searchProj, %this.markerlightMaxRange, 
@@ -394,3 +383,60 @@ function SimpleChargeImage::onFire(%this, %obj, %slot)
 	}
 	return %p;
 }
+
+function Player::setLaserChargePercent(%pl, %percent)
+{
+	if (%pl.getState() $= "Dead")
+	{
+		return;
+	}
+
+	%db = %pl.getDatablock();
+	for (%i = 0; %i < %db.maxTools; %i++)
+	{
+		%tool = %pl.tool[%i];
+		%img = %tool.image;
+
+		%maxCharge = %img.maxCharge;
+		%chargeTickTime = 1000;
+		%pl.weaponCharge[%i] = mFloor(%maxCharge * %percent / 100);
+		%pl.nextChargeTime[%i] = (getSimTime() + %chargeTickTime) | 0;
+
+		%equipped = (%pl.currTool != %i || %pl.getMountedImage(0) != %pl.tool[%i].image.getID()) ? 0 : 1;
+		
+		if (%maxCharge > 0 && %equipped)
+		{
+			SimpleCharge_BottomprintEnergyLevel(%pl);
+		}
+	}
+}
+
+function Player::AddLaserCharge(%pl, %amount)
+{
+	if (%pl.getState() $= "Dead")
+	{
+		return;
+	}
+
+	%db = %pl.getDatablock();
+	for (%i = 0; %i < %db.maxTools; %i++)
+	{
+		%tool = %pl.tool[%i];
+		%img = %tool.image;
+
+		%maxCharge = %img.maxCharge;
+		%chargeTickTime = 1000;
+		%pl.weaponCharge[%i] = getMax(getMin(%maxCharge, %pl.weaponCharge[%i] + %amount), 0);
+		%pl.nextChargeTime[%i] = (getSimTime() + %chargeTickTime) | 0;
+
+		%equipped = (%pl.currTool != %i || %pl.getMountedImage(0) != %pl.tool[%i].image.getID()) ? 0 : 1;
+		
+		if (%maxCharge > 0 && %equipped)
+		{
+			SimpleCharge_BottomprintEnergyLevel(%pl);
+		}
+	}
+}
+
+registerOutputEvent("Player", "setLaserChargePercent", "int 0 100 0");
+registerOutputEvent("Player", "AddLaserCharge", "int -1000 1000 0");

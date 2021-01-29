@@ -99,6 +99,61 @@ package MarkerlightPackage
 
 		return parent::emote(%pl, %image);
 	}
+
+	function serverCmdLight(%cl)
+	{
+		if (isObject(%pl = %cl.player) && %pl.getMountedImage(0).markerlightSupport)
+		{
+			%pl.markerlightDisabled = !%pl.markerlightDisabled;
+			%cl.play3D(brickChangeSound, %pl.getHackPosition());
+			if (!%pl.markerlightDisabled)
+			{
+				%pre = "\c7[[ AUTOTARGET ON ]]";
+			}
+			else
+			{
+				%pre = "\c7[[ AUTOTARGET OFF ]]";
+			}
+			%cl.centerprint("<font:Consolas:16>" @ %pre @ " <br>\c6- Light key to toggle -", 1);
+			%cl.skipOverride = getSimTime() + 1000 | 0;
+			return;
+		}
+
+		return parent::serverCmdLight(%cl);
+	}
+
+	function WeaponImage::checkAmmo(%this, %obj, %slot)
+	{
+		if (%this.markerlightSupport && isFunction(getMarkerlightVector) && isObject(%obj.client))
+		{
+			%searchProj = isObject(%this.markerlightProjectile) ? %this.markerlightProjectile : %this.projectile;
+
+			%muzzleVector = getMarkerlightVector(%obj, %searchProj, %this.markerlightMaxRange, 
+				%this.markerlightMaxAngle, %obj.getMuzzleVector(%slot), %obj.getMuzzlePoint(%slot));
+			%foundTarget = getField(%muzzleVector, 1);
+			%muzzleVector = getField(%muzzleVector, 0);
+
+			if (%foundTarget)
+			{
+				if (!%obj.markerlightDisabled)
+				{
+					%pre = "\c2[[ AUTOTARGET ON ]]";
+				}
+				else
+				{
+					%pre = "\c0[[ AUTOTARGET OFF ]]";
+				}
+				%obj.client.centerprint("<font:Consolas:16>" @ %pre @ " <br>\c6- Light key to toggle -", 1);
+				%obj.client.skipOverride = 0;
+			}
+			else if (%obj.client.skipOverride < getSimTime())
+			{
+				%obj.client.centerprint("", 1);
+			}
+		}
+
+		return parent::checkAmmo(%this, %obj, %slot);
+	}
 };
 activatePackage(MarkerlightPackage);
 
