@@ -51,3 +51,10 @@ datablock AudioProfile(MarkerlightCycleSound)
 	description = AudioClose3d;
 	preload = true;
 };
+
+//datablock AudioProfile(empGrenadeExplosionSound)
+//{
+//	filename    = "./resources/e.wav";
+//	description = AudioDefault3D;
+//	preload = true;
+//};

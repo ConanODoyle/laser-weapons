@@ -120,7 +120,7 @@ activatePackage(AudioRandomPitch);
 
 function GameConnection::Play2DSpeed(%cl, %sound, %speed)
 {
-	%pitch = %speed;// / 100;
+	%pitch = getMax(getMin(%speed, 2), 0.2);
 
 	%oldTimescale = getTimescale();
 	setTimescale(%pitch);
@@ -296,7 +296,6 @@ datablock AudioProfile(grenade_electroExplosionSound)
 
 
 
-exec("./weapon_electro_datablocks.cs");
 
 datablock ExplosionData(grenade_electroExplosion)
 {
