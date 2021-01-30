@@ -89,7 +89,7 @@ datablock ShapeBaseImageData(ChargePistolImage : SimpleChargeImageFramework_Semi
 	chargeRate = 6; //how fast to reload
 	chargeTickTime = 50; //time between charge ticks, in milliseconds
 	discharge = 10; //fire cost
-	chargeDisableTime = 600; //time between firing and charging resuming
+	chargeDisableTime = 800; //time between firing and charging resuming
 	spread = 0.001; //larger = more spread
 	shellCount = 1; //projectiles per fire state
 
