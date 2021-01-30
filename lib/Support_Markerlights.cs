@@ -402,7 +402,7 @@ function calculateFutureGravityPosition(%obj, %pos, %vel, %time)
 	%finalPos = vectorAdd(%xyPos, "0 0 " @ %zDelta);
 
 	%masks = $TypeMasks::fxBrickObjectType | $Typemasks::StaticObjectType | $Typemasks::PlayerObjectType;
-	%ray = containerRaycast(%pos, %finalPos, %masks, %obj);
+	%ray = containerRaycast(vectorAdd(%pos, "0 0 0.01"), %finalPos, %masks, %obj);
 	%hit = getWord(%ray, 0);
 	%hitloc = getWords(%ray, 1, 3);
 	if (isObject(%hit) && (%hit.getClassName() !$= "fxDTSBrick" || %hit.isColliding()))
