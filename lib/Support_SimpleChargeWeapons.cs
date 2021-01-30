@@ -137,15 +137,19 @@ function SimpleCharge_BottomprintEnergyLevel(%obj)
 {
 	if (!isObject(%obj.client) || %obj.getClassName() $= "AIPlayer" || %obj.currTool < 0 || %obj.client.doNotDisplay)
 		return;
+	
 	%image = %obj.tool[%obj.currtool].image;
 	if (!%image.discharge)
 		return;
+
 	%maxCharge = %image.maxCharge;
 	%itemName = %image.getName();
 	%currCharge = mFloor(%obj.weaponCharge[%obj.currTool]);
 	
 	while (strLen(%currCharge) < 3)
+	{
 		%currCharge = " " @ %currCharge;	
+	}
 
 	if (%currCharge < %maxCharge/10 || %currCharge < %obj.tool[%obj.currtool].image.discharge*2)
 		%color = "\c0";
@@ -154,8 +158,11 @@ function SimpleCharge_BottomprintEnergyLevel(%obj)
 	else
 		%color = "\c4";
 
+	if (%maxCharge < 100) { %bars = 20; }
+	else { %bars = 30; }
+
 	%gunInfo = "<font:Consolas:16>\c6ENERGY: " @ %currCharge @ " / " @ %maxCharge;
-	%chargeInfo = "<font:Impact:22>" @ createPowerChargeBar(%maxcharge, %currCharge, 30, "I");
+	%chargeInfo = "<font:Impact:22>" @ createPowerChargeBar(%maxcharge, %currCharge, %bars, "I");
 
 	%obj.client.bottomprint("<just:right>" @ %gunInfo @ " <br>" @ %chargeInfo @ " ", 1, 1);
 }
@@ -331,7 +338,7 @@ function SimpleChargeImage::onFire(%this, %obj, %slot)
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	%obj.playThread(2, plant);
-	%obj.tickSound  = 3;
+	%obj.tickSound  = 2;
 
 	%projectile = %this.projectile;
 	%spread = %this.spread;
@@ -380,6 +387,11 @@ function SimpleChargeImage::onFire(%this, %obj, %slot)
 			client = %obj.client;
 		};
 		MissionCleanup.add(%p);
+	}
+	
+	if (%obj.weaponCharge[%obj.currTool] < %this.discharge || %obj.getDamagePercent() >= 1.0)
+	{
+		%obj.setImageAmmo(%slot, 0);
 	}
 	return %p;
 }
