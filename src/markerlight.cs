@@ -105,6 +105,7 @@ datablock ProjectileData(MarkerlightRifleProjectile : ChargeLaserPistolProjectil
 	markerlightTime = 12000;
 
 	muzzleVelocity = 120;
+	gravityMod = 0.5;
 };
 
 datablock ItemData(MarkerlightRifleItem : MarkerlightPistolItem)
