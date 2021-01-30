@@ -224,9 +224,11 @@ function ShapeBase::attachMarkerlight(%obj, %time)
 	}
 	else
 	{
-		if (%obj.markerlightExpireTime < getSimTime()) { %obj.markerlightExpireTime = getSimTime(); }
-
-		%obj.markerlightExpireTime = ((%obj.markerlightExpireTime | 0) + (%time | 0)) | 0;
+		%newTime = getSimTime() + %time | 0;
+		if (%newTime > %obj.markerlightExpireTime)
+		{
+			%obj.markerlightExpireTime = %newTime | 0;
+		}
 	}
 	%obj.mountImage("MarkerlightImage", 3);
 }
