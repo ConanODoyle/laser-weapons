@@ -33,11 +33,6 @@ datablock ShapeBaseImageData(ChargeRifleImage : SimpleChargeImageFramework_SemiA
 	correctMuzzleVector = true;
 	className = "WeaponImage";
 
-	////Ammo
-	maxCharge = 100; //clip
-	chargeRate = 30; //how fast to reload
-	discharge = 30; //cost
-
 	item = ChargeRifleItem;
 	ammo = " ";
 	projectile = ChargeLaserRifleProjectile;
@@ -49,7 +44,7 @@ datablock ShapeBaseImageData(ChargeRifleImage : SimpleChargeImageFramework_SemiA
 	shellExitVariance   = 15.0;	
 	shellVelocity       = 7.0;
 
-	melee = Riflese;
+	melee = false;
 
 	armReady = true;
 
@@ -71,11 +66,11 @@ datablock ShapeBaseImageData(ChargeRifleImage : SimpleChargeImageFramework_SemiA
 	markerLightSpread = 0.0002; //defaults to .spread, defined above
 
 	stateTimeoutValue[4] = 0.1; //fire state timeout override
-	stateTimeoutValue[5] = 0.4; //smoke state timeout override
+	stateTimeoutValue[5] = 0.5; //smoke state timeout override
 	
 	stateSound[4]			= ChargeLaserRifleBlastSound;
 	stateEmitter[5]			= LaserSmokeEmitter;
-	stateEmitterTime[5]		= 0.4;
+	stateEmitterTime[5]		= 0.5;
 };
 
 function ChargeRifleImage::onFire(%this, %obj, %slot)

@@ -1,7 +1,7 @@
 //Pistol
 datablock ProjectileData(ChargeLaserPistolProjectile)
 {
-	directDamage        = 17;
+	directDamage        = 14;
 	directDamageType    = $DamageType::Pistol;
 	radiusDamageType    = $DamageType::Pistol;
 
@@ -85,7 +85,7 @@ datablock ShapeBaseImageData(ChargePistolImage : SimpleChargeImageFramework_Semi
 	colorShiftColor = ChargePistolItem.colorShiftColor;
 
 	// Weapon properties
-	maxCharge = 120; //clip
+	maxCharge = 60; //clip
 	chargeRate = 6; //how fast to reload
 	chargeTickTime = 50; //time between charge ticks, in milliseconds
 	discharge = 10; //fire cost

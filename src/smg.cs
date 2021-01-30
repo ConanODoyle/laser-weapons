@@ -1,7 +1,7 @@
 //smg
 datablock ProjectileData(ChargeLaserSMGProjectile : ChargeLaserPistolProjectile)
 {
-	directDamage        = 12;
+	directDamage        = 14;
 	directDamageType    = $DamageType::SMG;
 	radiusDamageType    = $DamageType::SMG;
 };
@@ -59,7 +59,7 @@ datablock ShapeBaseImageData(ChargeSMGImage : SimpleChargeImageFramework_Auto)
 	shellCount = 1; //projectiles per fire state
 	
 	markerLightSupport = 1;
-	markerLightMaxRange = 120;
+	markerLightMaxRange = 64;
 	markerLightSpread = 0.0012; //defaults to .spread, defined above
 
 	stateTimeoutValue[1] = 0.06; //reload check state timeout override;
