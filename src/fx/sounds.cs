@@ -37,3 +37,17 @@ datablock AudioProfile(ChargeLaserHitSound)
 	description = AudioClose3d;
 	preload = true;
 };
+
+datablock AudioProfile(MarkerlightShotSound)
+{
+	filename = "./resources/markerlightshot.wav";
+	description = AudioClose3d;
+	preload = true;
+};
+
+datablock AudioProfile(MarkerlightCycleSound)
+{
+	filename = "./resources/boltcycle.wav";
+	description = AudioClose3d;
+	preload = true;
+};

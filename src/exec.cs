@@ -68,3 +68,4 @@ datablock ExplosionData(ChargeLaserExplosion)
 exec("./pistol.cs");
 exec("./rifle.cs");
 exec("./smg.cs");
+exec("./markerlight.cs");
