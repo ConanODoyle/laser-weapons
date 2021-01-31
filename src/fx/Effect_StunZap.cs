@@ -243,7 +243,7 @@ function electroZapImage::onMount(%this, %obj, %slot)
 	}
 
 	%obj.setMoveFactor(0.25);
-	%obj.increaseDamageFactor = 2;
+	%obj.extraDamageFactor = 0.5;
 
 	//disable recharge for 12 seconds
 	for (%i = 0; %i < %obj.getDatablock().maxTools; %i++)
@@ -256,42 +256,32 @@ function electroZapImage::onUnmount(%this, %obj, %slot)
 {
 	%obj.zapTicks = 0;
 	%obj.setMoveFactor(1);
+	%obj.extraDamageFactor = 0;
 }
 
 function electroZapImage::onZappedA(%this, %obj, %slot)
 {
-	// %vel = vectorScale(%obj.getVelocity(), 0.5);
-	// %obj.setVelocity(getWords(%vel, 0, 1) SPC getWord(%obj.getVelocity(), 2));
-	%obj.setNodeColor("ALL","1 1 1 1");
-	%obj.playThread(2, plant);
-	%obj.damage(%obj, %obj.getHackPosition(), 1, $DamageType::gun);
+	zapTarget(%obj, "1 1 1 1");
 }
 
 function electroZapImage::onZappedB(%this, %obj, %slot)
 {
-	// %vel = vectorScale(%obj.getVelocity(), 0.5);
-	// %obj.setVelocity(getWords(%vel, 0, 1) SPC getWord(%obj.getVelocity(), 2));
-	%obj.setNodeColor("ALL","0 0 0 1");
-	%obj.playThread(2, Jump);
-	%obj.damage(%obj, %obj.getHackPosition(), 1, $DamageType::gun);
+	zapTarget(%obj, "0 0 0 1");
 }
 
 function electroZapImage::onDone(%this, %obj, %slot)
 {
 	if((%obj.zapTicks--) > 0)
 	{
-		// %vel = vectorScale(%obj.getVelocity(), 0.5);
-		// %obj.setVelocity(getWords(%vel, 0, 1) SPC getWord(%obj.getVelocity(), 2));
-		%obj.setNodeColor("ALL","0 0 0 1");
-		%obj.playThread(2, Jump);
-		%obj.damage(%obj, %obj.getHackPosition(), 1, $DamageType::gun);
+		zapTarget(%obj, "0 0 0 1");
 		return;
 	}
 
-	%obj.unMountImage(%slot);
-	%obj.setNodeColor("ALL","0 0 0 1");
 	%obj.playThread(2, Plant);
-	%obj.spawnExplosion(electrocuteProjectile,"1 1 1");
+	if (isObject(radioWaveProjectile))
+	{
+		%obj.spawnExplosion(radioWaveProjectile, %obj.getScale() * 2);
+	}
 
 	if(isObject(%obj.client))
 	{
@@ -302,5 +292,21 @@ function electroZapImage::onDone(%this, %obj, %slot)
 	{
 		GameConnection::applyBodyParts(%obj);
 		GameConnection::applyBodyColors(%obj);
+	}
+	%obj.unMountImage(%slot);
+}
+
+function zapTarget(%obj, %color)
+{
+	%obj.setNodeColor("ALL", %color);
+	%obj.playThread(2, jump);
+	%obj.setWhiteout(0.5);
+	if (isObject(radioWaveProjectile))
+	{
+		%obj.spawnExplosion(radioWaveProjectile, %obj.getScale() * 2);
+	}
+	for (%i = 0; %i < %obj.getDatablock().maxTools; %i++)
+	{
+		%obj.weaponCharge[%i] = getMax(%obj.weaponCharge[%i] - 8, 0);
 	}
 }

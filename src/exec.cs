@@ -6,6 +6,7 @@
 //common datablocks
 exec("./fx/emitters.cs");
 exec("./fx/sounds.cs");
+exec("./fx/shapes.cs");
 exec("./fx/Effect_StunZap.cs");
 
 datablock ExplosionData(BigRecoilExplosion)

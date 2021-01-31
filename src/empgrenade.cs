@@ -6,7 +6,7 @@ datablock ExplosionData(empGrenadeExplosion)
 	soundProfile = empGrenadeExplosionSound;
 
 	emitter[0] = empGrenadeExplosionCloudEmitter;
-	emitter[1] = grenade_concExplosionDebris2Emitter;
+	emitter[1] = empGrenadeExplosionDebris2Emitter;
 
 	particleEmitter = empGrenadeExplosionHazeEmitter;
 	particleDensity = 100;
@@ -28,11 +28,11 @@ datablock ExplosionData(empGrenadeExplosion)
 	lightEndColor = "0 0 0";
 
 	//impulse
-	impulseRadius = 12;
-	impulseForce = 3500;
+	impulseRadius = 6;
+	impulseForce = 1200;
 
-	damageRadius = 12;
-	radiusDamage = 10;
+	damageRadius = 8;
+	radiusDamage = 0;
 
 	uiName = "";
 };
@@ -48,7 +48,7 @@ datablock ProjectileData(empGrenadeProjectile)
 	explosion           = empGrenadeExplosion;
 	particleEmitter     = "";
 
-	muzzleVelocity      = 33;
+	muzzleVelocity      = 30;
 	velInheritFactor    = 0;
 	explodeOnPlayerImpact = false;
 	explodeOnDeath        = true;  
@@ -62,14 +62,16 @@ datablock ProjectileData(empGrenadeProjectile)
 	armingDelay         = 3980; 
 	lifetime            = 4000;
 	fadeDelay           = 3980;
-	bounceElasticity    = 0.3;
-	bounceFriction      = 0.2;
+	bounceElasticity    = 0.6;
+	bounceFriction      = 0.3;
 	isBallistic         = true;
 	gravityMod = 1.0;
 
 	hasLight    = false;
 	lightRadius = 3.0;
 	lightColor  = "0 0 0.5";
+
+	markerlightTime = 16000;
 
 	uiName = "";
 };
@@ -89,10 +91,12 @@ datablock ItemData(empGrenadeItem)
 
 	uiName = "EMP Grenade";
 	iconName = "";
+	colorShiftColor = "1 1 1 1";
 	doColorShift = false;
 
 	image = empGrenadeImage;
 	canDrop = true;
+	canPickupMultiple = 1;
 };
 
 datablock ShapeBaseImageData(empGrenadeImage)
@@ -119,21 +123,22 @@ datablock ShapeBaseImageData(empGrenadeImage)
 	projectile = empGrenadeProjectile;
 
 	stateName[0]							= "Ready";
-//	stateScript[0]							= "onReady";
+	stateSound[0]							= weaponSwitchSound;
 	stateSequence[0]						= "root";
 	stateTransitionOnTriggerDown[0]			= "Charge";
 
 	stateName[1]							= "Charge";
 	stateTransitionOnTimeout[1]				= "Cancel";
 	stateScript[1]							= "onChargeStart";
-	stateSequence[1]						= "noSpoon";
-	stateTimeoutValue[1]					= 4.0;
+	stateSequence[1]						= "pinOut";
+	stateSound[1]							= brickChangeSound;
+	stateTimeoutValue[1]					= (empGrenadeProjectile.lifeTime * 32) / 1000;
 	stateTransitionOnTriggerUp[1]			= "Fire";
 	stateWaitForTimeout[1]					= false;
 
 	stateName[4]							= "Cancel";
 	stateScript[4]							= "onChargeStop";
-	stateSequence[4]						= "noSpoon";
+	stateSequence[4]						= "pinOut";
 	stateTransitionOnTimeout[4]				= "Ready";
 	stateTimeoutValue[4]					= 0.1;
 
@@ -159,7 +164,6 @@ function empGrenadeImage::onChargeStart(%this, %obj, %slot)
 {
 	%obj.chargeStartToolSlot = %obj.currTool;
 	%obj.chargeStartTime[%obj.chargeStartToolSlot] = getSimTime();
-	serverPlay3D(empGrenadePinSound, %obj.getMuzzlePoint(%slot));
 	%obj.cookPrint(%obj.currTool);
 }
 
@@ -168,7 +172,7 @@ function empGrenadeImage::onFire(%this, %obj, %slot)
 	%obj.playThread(2, shiftDown);
 	serverPlay3D(weaponSwitchSound, %obj.getMuzzlePoint(%slot));
 
-	%velocity = VectorScale(%vec, %projectile.muzzleVelocity);
+	%velocity = VectorScale(%obj.getMuzzleVector(%slot), %this.projectile.muzzleVelocity);
 	
 	%p = new Projectile()
 	{
@@ -180,7 +184,7 @@ function empGrenadeImage::onFire(%this, %obj, %slot)
 		client = %obj.client;
 	};
 
-	%p.cookDeath = %p.schedule((%p.getDatablock().lifeTime * 32) - (getSimTime() - %obj.chargeStartTime[%this]), FuseExplode);
+	%p.cookDeath = %p.schedule((%this.projectile.lifeTime * 32) - (getSimTime() - %obj.chargeStartTime[%obj.chargeStartToolSlot]), FuseExplode);
 	%obj.chargeStartTime[%obj.chargeStartToolSlot] = "";
 	
 	//removal from inventory
@@ -194,30 +198,55 @@ function empGrenadeImage::onFire(%this, %obj, %slot)
 
 function empGrenadeProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal)
 {
-	serverPlay3D(empGrenadeBounceSound, %pos); 
+	serverPlay3D(empGrenadeBounceSound, %pos);
+	%obj.collideCount++;
+
+	if (%obj.collideCount > 3)
+	{
+		%obj.FuseExplode();
+	}
 }
 
 function empGrenadeProjectile::onExplode(%this, %obj, %pos)
 {
-	initContainerRadiusSearch(%pos, %this.damageRadius, $TypeMasks::PlayerObjectType);
+	initContainerRadiusSearch(%pos, %this.explosion.damageRadius, $TypeMasks::PlayerObjectType);
 	while (isObject(%col = ContainerSearchNext()))
 	{
 		if (minigameCanDamage(%obj, %col) == 1)
 		{
 			%dist = vectorDist(%pos, %col.getHackPosition());
 
-			%obstructed = obstructRadiusDamageCheck(%pos, %col);
+			%visible = obstructRadiusDamageCheck(%pos, %col);
 
-			if (!%obstructed)
+			if (%visible)
 			{
 				%col.zapTicks = 3;
 				%col.mountImage(electroZapImage, 1);
-				if (isObject("HatDizzyData"))
-				{
-					%col.mountImage(HatDizzyData, 2);
-				}
+				%col.attachMarkerlight(%this.markerlightTime);
 			}
 		}
+	}
+	%count = getRandom(12, 20);
+	for (%i = 0; %i < %count; %i++)
+	{
+		%shape = new StaticShape(lightningshape)
+		{
+			dataBlock = empLightningShape;
+		};
+		
+		%rand = getRandom();
+		%x = mSin(%rand * 3.141592 * 2); %y = mCos(%rand * 3.141592 * 2);
+		%rand = getRandom();
+		if (getRandom() > 0.5) { %neg = 1; } else { %neg = -1; }
+		%z = mPow(1 - mPow(%rand, 2), 0.5) * %neg;
+		%xy = vectorScale(vectorNormalize(%x SPC %y SPC 0), %rand);
+		%xyz = vectorNormalize(getWords(%xy, 0, 1) SPC %z);
+		%shape.setTransform(%pos SPC %xyz SPC (getRandom() - 0.5) * $pi * 4);
+
+		%rand = getRandom() * 0.5 + 0.5;
+		%shape.setScale(%rand SPC %rand SPC %rand);
+
+		%shape.schedule(getRandom() * 100 + 50, delete);
 	}
 	Parent::onExplode(%this, %obj, %pos);
 }
@@ -267,8 +296,50 @@ function Player::cookPrint(%pl, %toolSlot)
 		return;
 	}
 	
-	%time = mFloatLength(((%pl.tool[%toolSlot].image.Projectile.lifeTime * 32) - (getSimTime() - %pl.chargeStartTime[%toolSlot])) / 1000, 1);
-	%cl.centerPrint("<color:7F4FA8>" @ %time @ "s left!", 1);
+	%maxTime = %pl.tool[%toolSlot].image.projectile.lifeTime * 32;
+	%timeLeft = %maxTime - (getSimTime() - %pl.chargeStartTime[%toolSlot]);
+	
+	%diff = %timeLeft / %maxTime;
+	if (%diff > 0.5)
+	{
+		%r = (1 - %diff) * 2;
+		%g = 1;
+	}
+	else
+	{
+		%r = 1;
+		%g = %diff * 2;
+	}
+	%color = %r SPC %g SPC 0;
 
-	%pl.cookSched = %pl.schedule(100, cookPrint, %toolSlot);
+
+	%bar = getCookBar(%maxTime, %timeLeft, 12, "-");
+	%cl.centerPrint("<font:Consolas:20><color:" @ hexFromRGB(%color) @ ">[" @ mFloatLength(%timeLeft / 1000, 2) @ "s] <br><font:Impact:36>" @ %bar, 1);
+
+	%pl.cookSched = %pl.schedule(33, cookPrint, %toolSlot);
+}
+
+function getCookBar(%maxcharge, %currCharge, %totalBars, %char)
+{
+	%numColoredBars = mCeil(%currCharge/%maxcharge*%totalBars);
+	%char = %char $= "" ? "=" : %char;
+	%bars = "\c0";
+	%i = 0;
+
+	for (%i = 0; %i < %totalBars - %numColoredBars; %i++)
+	{
+		%bars = %bars @ %char;
+	}
+
+	%threshold = %totalBars; //red threshold
+	if (%i < %threshold)
+	{
+		%bars = %bars @ "\c2";
+		for (%j = %i; %j < %threshold; %j++)
+		{
+			%bars = %bars @ %char;
+			%i += 1;
+		}
+	}
+	return %bars;
 }

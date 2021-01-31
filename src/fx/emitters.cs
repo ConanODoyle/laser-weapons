@@ -193,7 +193,7 @@ datablock ParticleEmitterData(ChargeLaserExplosionRingEmitter)
 
 
 //emp grenade explosion
-datablock ParticleData(empGrenadeDebris2Particle)
+datablock ParticleData(empGrenadeExplosionDebris2Particle)
 {
 	dragCoefficient		= 1.0;
 	windCoefficient		= 0.0;
@@ -222,12 +222,12 @@ datablock ParticleData(empGrenadeDebris2Particle)
 	times[2]	= 1.0;
 };
 
-datablock ParticleEmitterData(empGrenadeDebris2Emitter)
+datablock ParticleEmitterData(empGrenadeExplosionDebris2Emitter)
 {
 	ejectionPeriodMS = 1;
 	periodVarianceMS = 0;
 	lifetimeMS       = 140;
-	ejectionVelocity = 12;
+	ejectionVelocity = 15;
 	velocityVariance = 12.0;
 	ejectionOffset   = 1.0;
 	thetaMin         = 0;
@@ -235,7 +235,7 @@ datablock ParticleEmitterData(empGrenadeDebris2Emitter)
 	phiReferenceVel  = 0;
 	phiVariance      = 360;
 	overrideAdvance = false;
-	particles = "empGrenadeDebris2Particle";
+	particles = "empGrenadeExplosionDebris2Particle";
 };
 
 datablock ParticleData(empGrenadeExplosionHazeParticle)
@@ -286,7 +286,7 @@ datablock ParticleData(empGrenadeExplosionCloudParticle)
 {
 	dragCoefficient		= 0.5;
 	windCoefficient		= 0.0;
-	gravityCoefficient	= 0.9;
+	gravityCoefficient	= 0;
 	inheritedVelFactor	= 0.0;
 	constantAcceleration	= 0.0;
 	lifetimeMS		= 900;
@@ -314,7 +314,7 @@ datablock ParticleEmitterData(empGrenadeExplosionCloudEmitter)
 	periodVarianceMS = 0;
 	ejectionVelocity = 7;
 	velocityVariance = 1.0;
-	ejectionOffset   = 1.0;
+	ejectionOffset   = 3.0;
 	thetaMin         = 0;
 	thetaMax         = 180;
 	phiReferenceVel  = 0;
