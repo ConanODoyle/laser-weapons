@@ -52,9 +52,16 @@ datablock AudioProfile(MarkerlightCycleSound)
 	preload = true;
 };
 
-//datablock AudioProfile(empGrenadeExplosionSound)
-//{
-//	filename    = "./resources/e.wav";
-//	description = AudioDefault3D;
-//	preload = true;
-//};
+datablock AudioProfile(empGrenadeBounceSound)
+{
+	filename    = "./resources/bounce1.wav";
+	description = AudioDefault3D;
+	preload = true;
+};
+
+datablock AudioProfile(empGrenadeExplosionSound)
+{
+	filename    = "./resources/blast_electric.wav";
+	description = AudioDefault3D;
+	preload = true;
+};

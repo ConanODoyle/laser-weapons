@@ -31,8 +31,8 @@ datablock ExplosionData(empGrenadeExplosion)
 	impulseRadius = 12;
 	impulseForce = 3500;
 
-	damageRadius = 0;
-	radiusDamage = 0;
+	damageRadius = 12;
+	radiusDamage = 10;
 
 	uiName = "";
 };
@@ -157,57 +157,118 @@ function empGrenadeImage::onChargeStop(%this, %obj, %slot) // overcooked!
 
 function empGrenadeImage::onChargeStart(%this, %obj, %slot)
 {
-	%obj.chargeStartTool = %obj.currTool;
-	%obj.chargeStartTime[%obj.chargeStartTool] = getSimTime();
+	%obj.chargeStartToolSlot = %obj.currTool;
+	%obj.chargeStartTime[%obj.chargeStartToolSlot] = getSimTime();
 	serverPlay3D(empGrenadePinSound, %obj.getMuzzlePoint(%slot));
-	%obj.cookPrint(%this);
+	%obj.cookPrint(%obj.currTool);
 }
 
 function empGrenadeImage::onFire(%this, %obj, %slot)
 {
 	%obj.playThread(2, shiftDown);
 	serverPlay3D(weaponSwitchSound, %obj.getMuzzlePoint(%slot));
-	%projs = ProjectileFire(%this.projectile, %obj.getEyePoint(), 
-		%obj.getMuzzleVector(%slot), 0, 1, 
-		%slot, %obj, %obj.client);
 
-	for(%i = 0; %i < getFieldCount(%projs); %i++)
+	%velocity = VectorScale(%vec, %projectile.muzzleVelocity);
+	
+	%p = new Projectile()
 	{
-		%proj = getField(%projs, %i);
-		%proj.cookDeath = %proj.schedule((%proj.getDatablock().lifeTime * 32) - (getSimTime() - %obj.chargeStartTime[%this]), FuseExplode);
-	}
+		dataBlock = %this.projectile;
+		initialVelocity = %velocity;
+		initialPosition = %obj.getEyePoint();
+		sourceObject = %obj;
+		sourceSlot = %slot;
+		client = %obj.client;
+	};
 
-	%obj.chargeStartTime[%obj.chargeStartTool] = "";
+	%p.cookDeath = %p.schedule((%p.getDatablock().lifeTime * 32) - (getSimTime() - %obj.chargeStartTime[%this]), FuseExplode);
+	%obj.chargeStartTime[%obj.chargeStartToolSlot] = "";
 	
 	//removal from inventory
 	%obj.unMountImage(%slot);
-	%obj.tool[%obj.chargeStartTool] = "";
+	%obj.tool[%obj.chargeStartToolSlot] = "";
 	if (isObject(%obj.client))
 	{
-		messageClient(%obj.client, 'MsgItemPickup', "", 0, %obj.chargeStartTool);
+		messageClient(%obj.client, 'MsgItemPickup', "", %obj.chargeStartToolSlot, 0);
 	}
 }
 
 function empGrenadeProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal)
 {
-	serverPlay3D(grenade_bounceSound,%pos); 
+	serverPlay3D(empGrenadeBounceSound, %pos); 
 }
 
 function empGrenadeProjectile::onExplode(%this, %obj, %pos)
 {
-	initContainerRadiusSearch(%pos, 16, $TypeMasks::PlayerObjectType);
-	while(isObject(%col = ContainerSearchNext()))
+	initContainerRadiusSearch(%pos, %this.damageRadius, $TypeMasks::PlayerObjectType);
+	while (isObject(%col = ContainerSearchNext()))
 	{
-		if(minigameCanDamage(%obj, %col) == 1)
+		if (minigameCanDamage(%obj, %col) == 1)
 		{
 			%dist = vectorDist(%pos, %col.getHackPosition());
 
-			if(!isObject(firstWord(containerRayCast(%pos,%col.getHackPosition(),$TypeMasks::FxBrickObjectType | $TypeMasks::VehicleObjectType, %col))))
+			%obstructed = obstructRadiusDamageCheck(%pos, %col);
+
+			if (!%obstructed)
 			{
 				%col.zapTicks = 3;
-				%col.mountImage(electroZapImage, 2);
+				%col.mountImage(electroZapImage, 1);
+				if (isObject("HatDizzyData"))
+				{
+					%col.mountImage(HatDizzyData, 2);
+				}
 			}
 		}
 	}
 	Parent::onExplode(%this, %obj, %pos);
+}
+
+function Projectile::FuseExplode(%proj) //this function fixes fuse time at the cost of discarding any non default fields
+{
+	%db = %proj.getDatablock();
+	%vel = %proj.getVelocity();
+	%pos = %proj.getPosition();
+	%sObj = %proj.sourceObject;
+	%sSlot = %proj.sourceSlot;
+	%cl = %proj.client;
+
+	%proj.delete();
+
+	if (vectorLen(%vel) == 0)
+		%vel = "0 0 0.1";
+
+	%p = new Projectile()
+	{
+		dataBlock = %db;
+		initialVelocity = %vel;
+		initialPosition = %pos;
+		sourceObject = %sObj;
+		sourceSlot = %sSlot;
+		client = %cl;
+	};
+	
+	MissionCleanup.add(%p);
+
+	%p.explode();
+}
+
+function Player::cookPrint(%pl, %toolSlot)
+{
+	if (!isObject(%pl) || !isObject(%cl = %pl.client))
+	{
+		return;
+	}
+	
+	cancel(%pl.cookSched);
+
+	if (%pl.chargeStartTime[%toolSlot] $= "" 
+		|| !isObject(%pl.getMountedImage(0)) 
+		|| %pl.getMountedImage(0).getID() != %pl.tool[%toolSlot].image.getID())
+	{
+		return;
+	}
+	
+	%time = mFloatLength(((%pl.tool[%toolSlot].image.Projectile.lifeTime * 32) - (getSimTime() - %pl.chargeStartTime[%toolSlot])) / 1000, 1);
+	%cl.centerPrint("<color:7F4FA8>" @ %time @ "s left!", 1);
+
+	%pl.cookSched = %pl.schedule(100, cookPrint, %toolSlot);
 }

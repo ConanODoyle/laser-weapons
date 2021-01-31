@@ -100,7 +100,7 @@ datablock ExplosionData(electrocuteSmogExplosion)
 	camShakeDuration = 0.5;
 	camShakeRadius = 10.0;
 
-   // Dynamic light
+	// Dynamic light
 	lightStartRadius = 0;
 	lightEndRadius = 1;
 	lightStartColor = "0.3 0.6 0.7";
@@ -109,13 +109,13 @@ datablock ExplosionData(electrocuteSmogExplosion)
 
 datablock ProjectileData(electrocuteProjectile)
 {
-	directDamage        = 15;
+	directDamage        = 0;
 	directDamageType    = $DamageType::electrocutegun;
 	radiusDamageType    = $DamageType::electrocutegun;
 
 	brickExplosionRadius = 0;
 	brickExplosionImpact = true;          //destroy a brick if we hit it directly?
-	brickExplosionForce  = 10;
+	brickExplosionForce  = 0;
 	brickExplosionMaxVolume = 1;          //max volume of bricks that we can destroy
 	brickExplosionMaxVolumeFloating = 2;  //max volume of bricks that we can destroy if they aren't connected to the ground
 
@@ -147,43 +147,43 @@ datablock ProjectileData(electrocuteProjectile)
 ////////////////
 datablock ShapeBaseImageData(electroZapImage)
 {
-   // Basic Item properties
+	// Basic Item properties
 	shapeFile = "base/data/shapes/empty.dts";
 	emap = true;
 
 	mountPoint = 3;
-offset = "-0.2 0 1";
+	offset = "-0.2 0 1";
 	eyeOffset = 0; //"0.7 1.2 -0.5";
 	rotation = eulerToMatrix( "0 0 0" );
 
 	correctMuzzleVector = true;
 
-   // Add the WeaponImage namespace as a parent, WeaponImage namespace
-   // provides some hooks into the inventory system.
+	// Add the WeaponImage namespace as a parent, WeaponImage namespace
+	// provides some hooks into the inventory system.
 	className = "WeaponImage";
 
-   // Projectile && Ammo.
+	// Projectile && Ammo.
 	item = electrocuteItem;
 	ammo = " ";
 	projectile = electrocuteProjectile;
 	projectileType = Projectile;
 
-   //melee particles shoot from eye node for consistancy
+	//melee particles shoot from eye node for consistancy
 	melee = false;
-   //raise your arm up or not
+	//raise your arm up or not
 	armReady = true;
 
 	doColorShift = true;
 	colorShiftColor = electrocutegunItem.colorShiftColor;
 
-   // Images have a state system which controls how the animations
-   // are run, which sounds are played, script callbacks, etc. This
-   // state system is downloaded to the client so that clients can
-   // predict state changes and animate accordingly.  The following
-   // system supports basic ready->fire->reload transitions as
-   // well as a no-ammo->dryfire idle state.
+	// Images have a state system which controls how the animations
+	// are run, which sounds are played, script callbacks, etc. This
+	// state system is downloaded to the client so that clients can
+	// predict state changes and animate accordingly.  The following
+	// system supports basic ready->fire->reload transitions as
+	// well as a no-ammo->dryfire idle state.
 
-   // Initial start up state
+	// Initial start up state
 	stateName[0]                     = "Activate";
 	stateTimeoutValue[0]             = 0.25;
 	stateScript[0]                  = "onZappedA";
@@ -235,36 +235,53 @@ offset = "-0.2 0 1";
 	stateTransitionOnTimeout[6]       = "ZappedB";
 };
 
-function electroZapImage::onMount(%this,%obj,%slot)
+function electroZapImage::onMount(%this, %obj, %slot)
 {
 	if(%obj.zapTicks $= "" || %obj.zapTicks <= 0)
+	{
 		%obj.zapTicks = 1;
+	}
+
+	%obj.setMoveFactor(0.25);
+	%obj.increaseDamageFactor = 2;
+
+	//disable recharge for 12 seconds
+	for (%i = 0; %i < %obj.getDatablock().maxTools; %i++)
+	{
+		%obj.nextChargeTime[%i] = getSimTime() + 12000 | 0;
+	}
 }
 
-function electroZapImage::onZappedA(%this,%obj,%slot)
+function electroZapImage::onUnmount(%this, %obj, %slot)
 {
-	%vel = vectorScale(%obj.getVelocity(), 0.5);
-	%obj.setVelocity(getWords(%vel, 0, 1) SPC getWord(%obj.getVelocity(), 2));
+	%obj.zapTicks = 0;
+	%obj.setMoveFactor(1);
+}
+
+function electroZapImage::onZappedA(%this, %obj, %slot)
+{
+	// %vel = vectorScale(%obj.getVelocity(), 0.5);
+	// %obj.setVelocity(getWords(%vel, 0, 1) SPC getWord(%obj.getVelocity(), 2));
 	%obj.setNodeColor("ALL","1 1 1 1");
 	%obj.playThread(2, plant);
 	%obj.damage(%obj, %obj.getHackPosition(), 1, $DamageType::gun);
 }
 
-function electroZapImage::onZappedB(%this,%obj,%slot)
+function electroZapImage::onZappedB(%this, %obj, %slot)
 {
-	%vel = vectorScale(%obj.getVelocity(), 0.5);
-	%obj.setVelocity(getWords(%vel, 0, 1) SPC getWord(%obj.getVelocity(), 2));
+	// %vel = vectorScale(%obj.getVelocity(), 0.5);
+	// %obj.setVelocity(getWords(%vel, 0, 1) SPC getWord(%obj.getVelocity(), 2));
 	%obj.setNodeColor("ALL","0 0 0 1");
 	%obj.playThread(2, Jump);
 	%obj.damage(%obj, %obj.getHackPosition(), 1, $DamageType::gun);
 }
 
-function electroZapImage::onDone(%this,%obj,%slot)
+function electroZapImage::onDone(%this, %obj, %slot)
 {
 	if((%obj.zapTicks--) > 0)
 	{
-		%vel = vectorScale(%obj.getVelocity(), 0.5);
-		%obj.setVelocity(getWords(%vel, 0, 1) SPC getWord(%obj.getVelocity(), 2));
+		// %vel = vectorScale(%obj.getVelocity(), 0.5);
+		// %obj.setVelocity(getWords(%vel, 0, 1) SPC getWord(%obj.getVelocity(), 2));
 		%obj.setNodeColor("ALL","0 0 0 1");
 		%obj.playThread(2, Jump);
 		%obj.damage(%obj, %obj.getHackPosition(), 1, $DamageType::gun);
@@ -272,8 +289,6 @@ function electroZapImage::onDone(%this,%obj,%slot)
 	}
 
 	%obj.unMountImage(%slot);
-	%obj.setVelocity("0 0" SPC getWord(%obj.getVelocity(), 2) + 2);
-	%obj.damage(%obj, %pos, 8, $DamageType::gun);
 	%obj.setNodeColor("ALL","0 0 0 1");
 	%obj.playThread(2, Plant);
 	%obj.spawnExplosion(electrocuteProjectile,"1 1 1");
