@@ -154,6 +154,12 @@ datablock ShapeBaseImageData(empGrenadeImage)
 	stateTimeoutValue[2]					= 0.3;
 };
 
+function empGrenadeImage::onUnmount(%this, %obj, %slot)
+{
+	%obj.playThread(0, root);
+	cancel(%obj.spearReadySched);
+}
+
 function empGrenadeImage::onChargeStop(%this, %obj, %slot) // overcooked!
 {
 	//%obj.damage(%obj, %obj.getHackPosition(), 33, $DamageType::Suicide);
@@ -165,11 +171,14 @@ function empGrenadeImage::onChargeStart(%this, %obj, %slot)
 	%obj.chargeStartToolSlot = %obj.currTool;
 	%obj.chargeStartTime[%obj.chargeStartToolSlot] = getSimTime();
 	%obj.cookPrint(%obj.currTool);
+	%obj.playthread(0, shiftRight);
+	%obj.spearReadySched = %obj.schedule(500, playThread, 0, spearReady);
 }
 
 function empGrenadeImage::onFire(%this, %obj, %slot)
 {
 	%obj.playThread(2, shiftDown);
+	%obj.playThread(0, spearThrow);
 	serverPlay3D(weaponSwitchSound, %obj.getMuzzlePoint(%slot));
 
 	%velocity = VectorScale(%obj.getMuzzleVector(%slot), %this.projectile.muzzleVelocity);
