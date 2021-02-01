@@ -117,10 +117,10 @@ datablock ItemData(MarkerlightRifleItem : MarkerlightPistolItem)
 	doColorShift = true;
 	colorShiftColor = "1 1 1 1";
 
-	image = MarkerlightRifleImage3;
+	image = MarkerlightRifleImage;
 };
 
-datablock ShapeBaseImageData(MarkerlightRifleImage3)
+datablock ShapeBaseImageData(MarkerlightRifleImage)
 {
 	shapeFile = "./resources/markerlightrifle.dts";
 	emap = true;
@@ -221,18 +221,23 @@ datablock ShapeBaseImageData(MarkerlightRifleImage3)
 	stateTransitionOnTimeout[6]			= "Ready";
 };
 
-function MarkerlightRifleImage3::onFire(%this, %obj, %slot)
+function MarkerlightRifleImage::onFire(%this, %obj, %slot)
 {
 	serverPlay3D(MarkerlightShotSound, %obj.getMuzzlePoint(%slot));
 	SimpleChargeImage::onFire(%this, %obj, %slot);
 }
 
-function MarkerlightRifleImage3::onMount(%this, %obj, %slot)
+function MarkerlightRifleImage::onMount(%this, %obj, %slot)
 {
-	%obj.schedule(250, playAudio, 0, brickPlantSound);
+	%obj.equipSoundSchedule = %obj.schedule(250, playAudio, 0, brickPlantSound);
 }
 
-function MarkerlightRifleImage3::onUnmount(%this, %obj, %slot)
+function MarkerlightRifleImage::onUnmount(%this, %obj, %slot)
+{
+	cancel(%obj.equipSoundSchedule);
+}
+
+function MarkerlightRifleImage::onUnmount(%this, %obj, %slot)
 {
 	if (isObject(%obj.client))
 	{
