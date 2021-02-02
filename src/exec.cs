@@ -71,3 +71,4 @@ exec("./rifle.cs");
 exec("./smg.cs");
 exec("./markerlight.cs");
 exec("./empgrenade.cs");
+exec("./drone.cs");

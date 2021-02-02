@@ -9,4 +9,11 @@ exec("./lib/speedUtils.cs");
 exec("./lib/shapenameColors.cs");
 exec("./lib/vectorUtils.cs");
 
+%errorA = ForceRequiredAddOn("Vehicle_Jeep");
+
+if(%errorA == $Error::AddOn_Disabled)
+{
+	JeepVehicle.uiName = "";
+}
+
 exec("./src/exec.cs");

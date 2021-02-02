@@ -322,3 +322,19 @@ datablock ParticleEmitterData(empGrenadeExplosionCloudEmitter)
 	overrideAdvance = false;
 	particles = "empGrenadeExplosionCloudParticle";
 };
+
+
+
+//drone jet
+datablock ParticleData(DroneJetParticle : playerJetParticle)
+{
+	dragCoefficient = 3;
+	gravityCoefficient = -10;
+	times[1] = "0.5";
+};
+
+datablock ParticleEmitterData(DroneJetEmitter : playerJetEmitter)
+{
+	particles = "DroneJetParticle";
+	ejectionVelocity = 0;
+};

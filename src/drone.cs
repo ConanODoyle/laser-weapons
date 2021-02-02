@@ -11,7 +11,7 @@ datablock StaticShapeData(droneBotMount)
 
 datablock PlayerData(droneBotArmor : PlayerStandardArmor)
 {
-	shapeFile = "./resources/droneBot.dts";
+	shapeFile = "./resources/drone.dts";
 	uiName = "";
 
 	boundingBox = vectorScale("1 1 1.2", 4);
@@ -21,6 +21,44 @@ datablock PlayerData(droneBotArmor : PlayerStandardArmor)
 	disableBurn = 1;
 
 	maxDamage = 400;
+};
+
+datablock DebrisData(droneBotDebris)
+{
+	emitters = "jeepDebrisTrailEmitter";
+
+	shapeFile = "./droneDebris.dts";
+	lifetime = 3.0;
+	minSpinSpeed = -300.0;
+	maxSpinSpeed = 300.0;
+	elasticity = 0.5;
+	friction = 0.2;
+	numBounces = 1;
+	staticOnMaxBounce = true;
+	snapOnMaxBounce = false;
+	fade = true;
+
+	gravModifier = 2;
+};
+
+datablock ShapeBaseImageData(droneJetImage)
+{
+	shapeFile = "base/data/shapes/empty.dts";
+	emap = true;
+
+	mountPoint = 3;
+
+	stateName[0]					= "Emitter1";
+	stateEmitter[0]					= "droneJetEmitter";
+	stateEmitterTime[0] 			= 1.2;
+	stateTimeoutValue[0]			= 1;
+	stateTransitionOnTimeout[0]		= "Emitter2";
+
+	stateName[1]					= "Emitter2";
+	stateEmitter[1]					= "droneJetEmitter";
+	stateEmitterTime[1] 			= 1.2;
+	stateTimeoutValue[1]			= 1;
+	stateTransitionOnTimeout[1]		= "Emitter1";
 };
 
 package ChargeLaserDrones
@@ -139,12 +177,12 @@ function Player::getLaserDroneSet(%pl)
 
 function Player::explodeLaserDrones(%pl)
 {
-	%set = %pl.getLaserDroneSet;
-	while (%set.getCount() > 0)
+	%set = %pl.getLaserDroneSet();
+	for (%i = 0; %i < %set.getCount(); %i++)
 	{
-		%obj = %set.getObject(0);
-		%obj.spawnExplosion(PlayerSpawnProjectile, 1);
-		%obj.delete();
+		%obj = %set.getObject(%i);
+		%obj.spawnExplosion("1 1 1", PlayerSpawnProjectile);
+		// %obj.schedule(33, delete);
 	}
 }
 
@@ -157,10 +195,180 @@ function Player::spawnLaserDrone(%pl, %position)
 
 	%bot.staticShapeMount = %mount;
 	%bot.sourceObject = %pl;
-	%bot.client = %pl.client;
+	%bot.sourceClient = %pl.client;
 
-	%mount.mountObject(%bot, 0);
+	%mount.mountObject(%bot, 1);
 	%mount.setTransform(%position);
+	%bot.mountImage(droneJetImage, 2);
 
 	$LaserDroneSimSet.add(%bot);
+	%droneSet.add(%bot);
+}
+
+
+
+
+
+
+
+
+
+
+datablock ProjectileData(droneDeployProjectile)
+{
+	projectileShapeName = "./resources/empGrenadeProjectile.dts";
+	directDamage        = 0;
+	directDamageType  = $DamageType::electroDirect;
+	radiusDamageType  = $DamageType::electroDirect;
+	impactImpulse	   = 0;
+	verticalImpulse	   = 0;
+	explosion           = "";
+	particleEmitter     = ChargeLaserTracer;
+
+	muzzleVelocity      = 15;
+	velInheritFactor    = 0;
+	explodeOnPlayerImpact = false;
+	explodeOnDeath        = true;  
+
+	brickExplosionRadius = 0;
+	brickExplosionImpact = false;
+	brickExplosionForce  = 0;             
+	brickExplosionMaxVolume = 0;
+	brickExplosionMaxVolumeFloating = 0;
+
+	armingDelay         = 19800;
+	lifetime            = 20000;
+	fadeDelay           = 19800;
+	bounceElasticity    = 0.1;
+	bounceFriction      = 0.8;
+	isBallistic         = true;
+	gravityMod = 1.0;
+
+	hasLight    = false;
+	lightRadius = 3.0;
+	lightColor  = "0 0 0.5";
+
+	uiName = "";
+};
+
+datablock ItemData(droneDeployItem)
+{
+	category = "Weapon";
+	className = "Weapon";
+
+	shapeFile = "./resources/empGrenade.dts";
+	rotate = false;
+	mass = 1;
+	density = 0.2;
+	elasticity = 0.2;
+	friction = 0.6;
+	emap = true;
+
+	uiName = "Drone Deployer";
+	iconName = "";
+	colorShiftColor = "1 0 0 1";
+	doColorShift = true;
+
+	image = droneDeployImage;
+	canDrop = true;
+	canPickupMultiple = 1;
+};
+
+datablock ShapeBaseImageData(droneDeployImage)
+{
+	shapeFile = "./resources/empGrenade.dts";
+	emap = true;
+
+	item = droneDeployItem;
+
+	mountPoint = 0;
+	offset = "0 0 0";
+	eyeOffset = 0;
+	rotation = eulerToMatrix( "0 0 0" );
+	className = "WeaponImage";
+	armReady = true;
+
+	doColorShift = droneDeployItem.doColorShift;
+	colorShiftColor = droneDeployItem.colorShiftColor;
+
+	weaponUseCount = 1;
+	weaponReserveMax = 3;
+
+	projectileType = Projectile;
+	projectile = droneDeployProjectile;
+
+	stateName[0]							= "Ready";
+	stateSound[0]							= weaponSwitchSound;
+	stateSequence[0]						= "root";
+	stateTransitionOnTriggerDown[0]			= "Charge";
+
+	stateName[1]							= "Charge";
+	stateScript[1]							= "onChargeStart";
+	stateSequence[1]						= "pinOut";
+	stateSound[1]							= brickChangeSound;
+	stateTransitionOnTriggerUp[1]			= "Fire";
+	stateWaitForTimeout[1]					= false;
+
+	stateName[2]							= "Fire";
+	stateTransitionOnTimeout[2]				= "Ready";
+	stateScript[2]							= "onFire";
+	stateEjectShell[2]						= true;
+	stateTimeoutValue[2]					= 0.3;
+};
+
+function droneDeployImage::onUnmount(%this, %obj, %slot)
+{
+	%obj.playThread(0, root);
+	cancel(%obj.spearReadySched);
+}
+
+function droneDeployImage::onChargeStop(%this, %obj, %slot) // overcooked!
+{
+	//%obj.damage(%obj, %obj.getHackPosition(), 33, $DamageType::Suicide);
+	%this.onFire(%obj, %slot);
+}
+
+function droneDeployImage::onChargeStart(%this, %obj, %slot)
+{
+	%obj.playthread(0, shiftRight);
+	%obj.spearReadySched = %obj.schedule(500, playThread, 0, spearReady);
+}
+
+function droneDeployImage::onFire(%this, %obj, %slot)
+{
+	%obj.playThread(2, shiftDown);
+	%obj.playThread(0, spearThrow);
+	serverPlay3D(weaponSwitchSound, %obj.getMuzzlePoint(%slot));
+
+	%velocity = VectorScale(%obj.getMuzzleVector(%slot), %this.projectile.muzzleVelocity);
+	
+	%p = new Projectile()
+	{
+		dataBlock = %this.projectile;
+		initialVelocity = %velocity;
+		initialPosition = %obj.getEyePoint();
+		sourceObject = %obj;
+		sourceSlot = %slot;
+		client = %obj.client;
+	};
+
+	//removal from inventory
+	%obj.unMountImage(%slot);
+	%obj.tool[%obj.chargeStartToolSlot] = "";
+	if (isObject(%obj.client))
+	{
+		messageClient(%obj.client, 'MsgItemPickup', "", %obj.chargeStartToolSlot, 0);
+	}
+}
+
+function droneDeployProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal)
+{
+	serverPlay3D(empGrenadeBounceSound, %pos);
+	talk(%obj.sourceObject);
+	if (isFunction(%obj.sourceObject.getClassName(), "spawnLaserDrone")
+		&& %obj.sourceObject.getDamageState() $= "Enabled")
+	{
+		%obj.sourceObject.spawnLaserDrone(vectorAdd(%pos, "0 0 2"));
+	}
+	%obj.delete();
 }
