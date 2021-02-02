@@ -57,7 +57,7 @@ datablock ShapeBaseImageData(ChargeRifleImage : SimpleChargeImageFramework_SemiA
 	chargeTickTime = 85; //time between charge ticks, in milliseconds
 	discharge = 10; //fire cost
 	chargeDisableTime = 2000; //time between firing and charging resuming
-	spread = 0.001; //larger = more spread
+	spread = 0.0005; //larger = more spread
 	shellCount = 1; //projectiles per fire state
 
 	markerLightSupport = 1;
