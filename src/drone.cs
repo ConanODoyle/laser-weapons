@@ -21,6 +21,10 @@ datablock PlayerData(droneBotArmor : PlayerStandardArmor)
 	disableBurn = 1;
 
 	maxDamage = 400;
+	useCustomPainEffects = 1;
+	painHighImage = "";
+	painMidImage = "";
+	painLowImage = "";
 };
 
 datablock DebrisData(droneBotDebris)
@@ -81,6 +85,7 @@ package ChargeLaserDrones
 		{
 			%obj.spawnExplosion(spawnProjectile, 1);
 			%obj.schedule(50, delete);
+			return;
 		}
 
 		return parent::onDisabled(%this, %obj, %state);
@@ -214,7 +219,7 @@ function Player::spawnLaserDrone(%pl, %position)
 
 
 
-
+//drone deploy item
 datablock ProjectileData(droneDeployProjectile)
 {
 	projectileShapeName = "./resources/empGrenadeProjectile.dts";
@@ -373,3 +378,18 @@ function droneDeployProjectile::onCollision(%this, %obj, %col, %fade, %pos, %nor
 	}
 	%obj.delete();
 }
+
+
+
+
+
+
+
+
+datablock ShapeBaseImageData(droneBurstGunItem)
+{
+	shapeFile = "./resources/droneBurstGun.dts";
+	emap = true;
+
+	
+};
