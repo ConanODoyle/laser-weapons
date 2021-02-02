@@ -79,7 +79,7 @@ package ChargeLaserDrones
 
 		if (%this.getName() $= "droneBotArmor")
 		{
-			%obj.spawnExplosion(spawnExplosion, 1);
+			%obj.spawnExplosion(spawnProjectile, 1);
 			%obj.schedule(50, delete);
 		}
 
@@ -178,11 +178,11 @@ function Player::getLaserDroneSet(%pl)
 function Player::explodeLaserDrones(%pl)
 {
 	%set = %pl.getLaserDroneSet();
-	for (%i = 0; %i < %set.getCount(); %i++)
+	while (%set.getCount() > 0)
 	{
-		%obj = %set.getObject(%i);
-		%obj.spawnExplosion("1 1 1", PlayerSpawnProjectile);
-		// %obj.schedule(33, delete);
+		%obj = %set.getObject(0);
+		%obj.spawnExplosion(spawnProjectile, 1);
+		%obj.delete();
 	}
 }
 
@@ -197,8 +197,9 @@ function Player::spawnLaserDrone(%pl, %position)
 	%bot.sourceObject = %pl;
 	%bot.sourceClient = %pl.client;
 
-	%mount.mountObject(%bot, 1);
 	%mount.setTransform(%position);
+	%mount.mountObject(%bot, 1);
+	%bot.setTransform("0 0 0 0 0 1 " @ getRandom() * 3.14159 * 2);
 	%bot.mountImage(droneJetImage, 2);
 
 	$LaserDroneSimSet.add(%bot);
@@ -320,16 +321,17 @@ function droneDeployImage::onUnmount(%this, %obj, %slot)
 {
 	%obj.playThread(0, root);
 	cancel(%obj.spearReadySched);
+	%obj.droneDeploySlot = "";
 }
 
 function droneDeployImage::onChargeStop(%this, %obj, %slot) // overcooked!
 {
-	//%obj.damage(%obj, %obj.getHackPosition(), 33, $DamageType::Suicide);
 	%this.onFire(%obj, %slot);
 }
 
 function droneDeployImage::onChargeStart(%this, %obj, %slot)
 {
+	%obj.droneDeploySlot = %obj.currTool;
 	%obj.playthread(0, shiftRight);
 	%obj.spearReadySched = %obj.schedule(500, playThread, 0, spearReady);
 }
@@ -353,18 +355,17 @@ function droneDeployImage::onFire(%this, %obj, %slot)
 	};
 
 	//removal from inventory
-	%obj.unMountImage(%slot);
-	%obj.tool[%obj.chargeStartToolSlot] = "";
+	%obj.tool[%obj.droneDeploySlot] = "";
 	if (isObject(%obj.client))
 	{
-		messageClient(%obj.client, 'MsgItemPickup', "", %obj.chargeStartToolSlot, 0);
+		messageClient(%obj.client, 'MsgItemPickup', "", %obj.droneDeploySlot, 0);
 	}
+	%obj.unMountImage(%slot);
 }
 
 function droneDeployProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal)
 {
 	serverPlay3D(empGrenadeBounceSound, %pos);
-	talk(%obj.sourceObject);
 	if (isFunction(%obj.sourceObject.getClassName(), "spawnLaserDrone")
 		&& %obj.sourceObject.getDamageState() $= "Enabled")
 	{
