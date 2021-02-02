@@ -6,7 +6,7 @@ exec("./lib/Support_PickupDuplicateItems.cs");
 exec("./lib/colorUtils.cs");
 exec("./lib/hexToInt.cs");
 exec("./lib/speedUtils.cs");
-exec("./lib/shapenameColors.cs");
+exec("./lib/objectColors.cs");
 exec("./lib/vectorUtils.cs");
 
 %errorA = ForceRequiredAddOn("Vehicle_Jeep");
