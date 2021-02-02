@@ -108,7 +108,7 @@ datablock ProjectileData(MarkerlightRifleProjectile : ChargeLaserPistolProjectil
 	gravityMod = 0.5;
 };
 
-datablock ItemData(MarkerlightRifleItem : MarkerlightPistolItem)
+datablock ItemData(MarkerlightRifleItem : ChargePistolItem)
 {
 	shapeFile = "./resources/markerlightrifle.dts";
 
@@ -235,10 +235,6 @@ function MarkerlightRifleImage::onMount(%this, %obj, %slot)
 function MarkerlightRifleImage::onUnmount(%this, %obj, %slot)
 {
 	cancel(%obj.equipSoundSchedule);
-}
-
-function MarkerlightRifleImage::onUnmount(%this, %obj, %slot)
-{
 	if (isObject(%obj.client))
 	{
 		%obj.client.bottomprint("", 1, 1);
