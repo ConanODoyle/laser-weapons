@@ -233,6 +233,9 @@ function ShapeBase::attachMarkerlight(%obj, %time)
 	%obj.mountImage("MarkerlightImage", 3);
 }
 
+registerOutputEvent("Player", "attachMarkerlight", "int -1 100000 1000");
+registerOutputEvent("Bot", "attachMarkerlight", "int -1 100000 1000");
+
 function ShapeBase::removeMarkerlight(%obj)
 {
 	$MarkerlightSimSet.remove(%obj);
@@ -293,11 +296,18 @@ function getClosestMarkerlight(%searcher, %maxRange, %maxAngle, %muzzleVector, %
 			continue;
 		}
 
-		%searchToObj = vectorSub(%objPos, %muzzlePos);
-		%angle = vectorAngle(%muzzleVector, %searchToObj);
-		if (%angle > %maxAngle)
+		if (%maxAngle < 3.14159 * 2)
 		{
-			continue;
+			%searchToObj = vectorSub(%objPos, %muzzlePos);
+			%angle = vectorAngle(%muzzleVector, %searchToObj);
+			if (%angle > %maxAngle)
+			{
+				continue;
+			}
+		}
+		else
+		{
+			%angle = 10;
 		}
 
 		if (isFunction(%obj.getClassName(), "getHackPosition")) { %targetPos = %obj.getHackPosition(); }
@@ -314,7 +324,9 @@ function getClosestMarkerlight(%searcher, %maxRange, %maxAngle, %muzzleVector, %
 		//change if one of the following:
 		//no value set
 		//best vs new angle is bigger than %angleIgnore, AND best angle is more than current angle
-		//best distance is more than current target distance, AND angle difference is more than %angleIgnore
+		//	case: finds two targets, one target is significantly closer to aim vector than the other -> select closer angle target regardless of distance difference
+		//best distance is more than current target distance, AND angle difference is less than %angleIgnore
+		//	case: finds two targets, a closer target that isnt significantly closer to aim vector is found -> select physically closer target
 
 		%angleDiff = mAbs(%bestAngle - %angle);
 		// talk((%angleDiff > %angleIgnore) @ " | ba:" @ %bestAngle @ " | a:" @ %angle @ " | ad:" @ %angleDiff);
@@ -420,6 +432,3 @@ function calculateFutureGravityPosition(%obj, %pos, %vel, %time, %gravity)
 	// echo(%hit SPC " | " @ %hitloc @ " | " @ %finalPos);
 	return %finalPos;
 }
-
-registerOutputEvent("Player", "attachMarkerlight", "int -1 100000 1000");
-registerOutputEvent("Bot", "attachMarkerlight", "int -1 100000 1000");
