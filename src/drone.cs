@@ -157,7 +157,7 @@ package ChargeLaserDrones
 
 		if (%this.getName() $= "droneBotArmor")
 		{
-			%obj.spawnExplosion(droneBotExplosion, 1);
+			%obj.spawnExplosion(droneBotExplosionProjectile, 1);
 			%obj.schedule(50, delete);
 			return;
 		}
@@ -336,11 +336,12 @@ function Player::explodeLaserDrones(%pl)
 	while (%set.getCount() > 0)
 	{
 		%obj = %set.getObject(0);
-		%obj.kill();
+		%obj.spawnExplosion(droneBotExplosionProjectile, 1);
+		%obj.delete();
 	}
 }
 
-function Player::spawnLaserDrone(%pl, %position, %rightImage, %leftImage, %faceVector)
+function Player::spawnLaserDrone(%pl, %position, %rightImage, %leftImage, %faceVector, %colorScale)
 {
 	%droneSet = %pl.getLaserDroneSet();
 
@@ -362,7 +363,7 @@ function Player::spawnLaserDrone(%pl, %position, %rightImage, %leftImage, %faceV
 	{
 		%pl.lastShapeNameColor = "1 1 1";
 	}
-	%bot.setNodeColor("ALL", %pl.lastShapeNameColor);
+	%bot.setNodeColor("ALL", vectorScale(%pl.lastShapeNameColor, %colorScale) SPC 1);
 	%bot.setShapeName(%pl.client.name @ "'s Drone", 8564862);
 	%bot.setShapeNameDistance(10);
 	%bot.setShapeNameColor(%pl.lastShapeNameColor);
@@ -400,4 +401,27 @@ function Player::spawnLaserDrone(%pl, %position, %rightImage, %leftImage, %faceV
 			%oldest.kill();
 		}
 	}
+}
+
+function serverCmdClearDrones(%cl)
+{
+	if (isObject(%cl.player))
+	{
+		%cl.player.explodeLaserDrones();
+	}
+	messageClient(%cl, '', "\c3Your drones are cleared!");
+}
+
+function serverCmdClearAllDrones(%cl)
+{
+	if (!%cl.isAdmin)
+	{
+		return;
+	}
+
+	while ($LaserDroneSimSet.getCount() > 0)
+	{
+		$LaserDroneSimSet.getObject(0).kill();
+	}
+	messageAll('MsgClearBricks', "\c2" @ %cl.name @ " cleared all drones.");
 }

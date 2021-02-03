@@ -1,7 +1,7 @@
 //drone deploy item
 datablock ProjectileData(droneDeployProjectile)
 {
-	projectileShapeName = "./resources/empGrenadeProjectile.dts";
+	projectileShapeName = "./resources/droneItem.dts";
 	directDamage        = 0;
 	directDamageType  = $DamageType::electroDirect;
 	radiusDamageType  = $DamageType::electroDirect;
@@ -10,7 +10,7 @@ datablock ProjectileData(droneDeployProjectile)
 	explosion           = "";
 	particleEmitter     = ChargeLaserTracer;
 
-	muzzleVelocity      = 15;
+	muzzleVelocity      = 18;
 	velInheritFactor    = 0;
 	explodeOnPlayerImpact = false;
 	explodeOnDeath        = true;  
@@ -21,27 +21,27 @@ datablock ProjectileData(droneDeployProjectile)
 	brickExplosionMaxVolume = 0;
 	brickExplosionMaxVolumeFloating = 0;
 
-	armingDelay         = 19800;
-	lifetime            = 20000;
-	fadeDelay           = 19800;
+	armingDelay         = 1800;
+	lifetime            = 2000;
+	fadeDelay           = 1800;
 	bounceElasticity    = 0.1;
 	bounceFriction      = 0.8;
 	isBallistic         = true;
-	gravityMod = 1.0;
+	gravityMod = 0.8;
 
 	hasLight    = false;
-	lightRadius = 3.0;
+	lightRadius = 0.0;
 	lightColor  = "0 0 0.5";
 
 	uiName = "";
 };
 
-datablock ItemData(droneDeployItem)
+datablock ItemData(droneBurstGunDeployItem)
 {
 	category = "Weapon";
 	className = "Weapon";
 
-	shapeFile = "./resources/empGrenade.dts";
+	shapeFile = "./resources/droneItem.dts";
 	rotate = false;
 	mass = 1;
 	density = 0.2;
@@ -49,32 +49,32 @@ datablock ItemData(droneDeployItem)
 	friction = 0.6;
 	emap = true;
 
-	uiName = "Drone Deployer";
+	uiName = "Burst Drone";
 	iconName = "";
-	colorShiftColor = "1 0 0 1";
+	colorShiftColor = "1 1 1 1";
 	doColorShift = true;
 
-	image = droneDeployImage;
+	image = droneBurstGunDeployImage;
 	canDrop = true;
 	canPickupMultiple = 1;
 };
 
-datablock ShapeBaseImageData(droneDeployImage)
+datablock ShapeBaseImageData(droneBurstGunDeployImage)
 {
-	shapeFile = "./resources/empGrenade.dts";
+	shapeFile = "./resources/droneItem.dts";
 	emap = true;
 
-	item = droneDeployItem;
+	item = droneBurstGunDeployItem;
 
 	mountPoint = 0;
-	offset = "0 0 0";
+	offset = "-0.561148 0 0";
 	eyeOffset = 0;
 	rotation = eulerToMatrix( "0 0 0" );
 	className = "WeaponImage";
 	armReady = true;
 
-	doColorShift = droneDeployItem.doColorShift;
-	colorShiftColor = droneDeployItem.colorShiftColor;
+	doColorShift = droneBurstGunDeployItem.doColorShift;
+	colorShiftColor = droneBurstGunDeployItem.colorShiftColor;
 
 	weaponUseCount = 1;
 	weaponReserveMax = 3;
@@ -82,17 +82,14 @@ datablock ShapeBaseImageData(droneDeployImage)
 	projectileType = Projectile;
 	projectile = droneDeployProjectile;
 
-	stateName[0]							= "Ready";
-	stateSound[0]							= weaponSwitchSound;
-	stateSequence[0]						= "root";
-	stateTransitionOnTriggerDown[0]			= "Charge";
+	stateName[0]							= "Activate";
+	stateTimeoutValue[0]					= 0.15;
+	stateTransitionOnTimeout[0]				= "Ready";
 
-	stateName[1]							= "Charge";
-	stateScript[1]							= "onChargeStart";
-	stateSequence[1]						= "pinOut";
-	stateSound[1]							= brickChangeSound;
-	stateTransitionOnTriggerUp[1]			= "Fire";
-	stateWaitForTimeout[1]					= false;
+	stateName[1]							= "Ready";
+	stateSound[1]							= weaponSwitchSound;
+	stateSequence[1]						= "root";
+	stateTransitionOnTriggerDown[1]			= "Fire";
 
 	stateName[2]							= "Fire";
 	stateTransitionOnTimeout[2]				= "Ready";
@@ -101,29 +98,34 @@ datablock ShapeBaseImageData(droneDeployImage)
 	stateTimeoutValue[2]					= 0.3;
 };
 
-function droneDeployImage::onUnmount(%this, %obj, %slot)
+datablock ItemData(droneRifleGunDeployItem : droneBurstGunDeployItem)
 {
-	%obj.playThread(0, root);
-	cancel(%obj.spearReadySched);
-	%obj.droneDeploySlot = "";
+	uiName = "Rifle Drone";
+	image = droneRifleGunDeployImage;
+	colorShiftColor = "0.7 0.7 0.7 1";
+};
+
+datablock ShapeBaseImageData(droneRifleGunDeployImage : droneBurstGunDeployImage)
+{
+	item = droneRifleGunDeployItem;
+	colorShiftColor = "0.7 0.7 0.7 1";
+};
+
+
+
+function droneBurstGunDeployImage::onMount(%this, %obj, %slot)
+{
+	%obj.playThread(1, armReadyBoth);
 }
 
-function droneDeployImage::onChargeStop(%this, %obj, %slot) // overcooked!
+function droneRifleGunDeployImage::onMount(%this, %obj, %slot)
 {
-	%this.onFire(%obj, %slot);
+	%obj.playThread(1, armReadyBoth);
 }
 
-function droneDeployImage::onChargeStart(%this, %obj, %slot)
+function droneBurstGunDeployImage::onFire(%this, %obj, %slot)
 {
-	%obj.droneDeploySlot = %obj.currTool;
-	%obj.playThread(0, shiftRight);
-	%obj.spearReadySched = %obj.schedule(500, playThread, 0, spearReady);
-}
-
-function droneDeployImage::onFire(%this, %obj, %slot)
-{
-	%obj.playThread(2, shiftDown);
-	%obj.playThread(0, spearThrow);
+	%obj.playThread(1, activate2);
 	serverPlay3D(weaponSwitchSound, %obj.getMuzzlePoint(%slot));
 
 	%velocity = VectorScale(%obj.getMuzzleVector(%slot), %this.projectile.muzzleVelocity);
@@ -136,28 +138,73 @@ function droneDeployImage::onFire(%this, %obj, %slot)
 		sourceObject = %obj;
 		sourceSlot = %slot;
 		client = %obj.client;
+		rightImage = droneBurstGunImage;
+		leftImage = droneBurstGunImageLeft;
+		colorScale = getWord(%this.colorShiftColor, 0);
 	};
 
 	//removal from inventory
-	%obj.tool[%obj.droneDeploySlot] = "";
+	%obj.tool[%obj.currTool] = "";
 	if (isObject(%obj.client))
 	{
-		messageClient(%obj.client, 'MsgItemPickup', "", %obj.droneDeploySlot, 0);
+		messageClient(%obj.client, 'MsgItemPickup', "", %obj.currTool, 0);
 	}
 	%obj.unMountImage(%slot);
 }
 
+function droneRifleGunDeployImage::onFire(%this, %obj, %slot)
+{
+	%obj.playThread(1, activate2);
+	serverPlay3D(weaponSwitchSound, %obj.getMuzzlePoint(%slot));
+
+	%velocity = VectorScale(%obj.getMuzzleVector(%slot), %this.projectile.muzzleVelocity);
+	
+	%p = new Projectile()
+	{
+		dataBlock = %this.projectile;
+		initialVelocity = %velocity;
+		initialPosition = %obj.getEyePoint();
+		sourceObject = %obj;
+		sourceSlot = %slot;
+		client = %obj.client;
+		rightImage = droneRifleGunImage;
+		leftImage = droneRifleGunImageLeft;
+		colorScale = getWord(%this.colorShiftColor, 0);
+	};
+
+	//removal from inventory
+	%obj.tool[%obj.currTool] = "";
+	if (isObject(%obj.client))
+	{
+		messageClient(%obj.client, 'MsgItemPickup', "", %obj.currTool, 0);
+	}
+	%obj.unMountImage(%slot);
+}
+
+
+
 function droneDeployProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal)
 {
 	serverPlay3D(empGrenadeBounceSound, %pos);
+	if (!(%col.getType() & $Typemasks::PlayerObjectType))
+	{
+		%obj.hitNormal = %normal;
+		%obj.explode();
+	}
+	%obj.delete();
+}
+
+function droneDeployProjectile::onExplode(%this, %obj, %pos)
+{
 	if (isFunction(%obj.sourceObject.getClassName(), "spawnLaserDrone")
 		&& %obj.sourceObject.getDamageState() $= "Enabled")
 	{
 		%faceVector = vectorNormalize(vectorSub(%pos, %obj.initialPosition));
-		%obj.sourceObject.spawnLaserDrone(vectorAdd(%pos, vectorScale(%normal, 2)), 
-			droneBurstGunImage, 
-			droneBurstGunImageLeft,
-			getWords(%faceVector, 0, 1));
+		%obj.sourceObject.spawnLaserDrone(vectorAdd(%pos, vectorScale(%obj.hitNormal, 1)), 
+			%obj.rightImage, 
+			%obj.leftImage,
+			getWords(%faceVector, 0, 1),
+			%obj.colorScale);
 	}
-	%obj.delete();
+	Parent::onExplode(%this, %obj, %pos);
 }

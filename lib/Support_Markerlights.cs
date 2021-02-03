@@ -124,7 +124,7 @@ package MarkerlightPackage
 
 	function WeaponImage::checkAmmo(%this, %obj, %slot)
 	{
-		if (%this.markerlightSupport && isFunction(getMarkerlightVector) && isObject(%obj.client))
+		if (%this.markerlightSupport && isFunction(getMarkerlightVector) && isObject(%obj.client) && %obj.client != %object)
 		{
 			%searchProj = isObject(%this.markerlightProjectile) ? %this.markerlightProjectile : %this.projectile;
 
