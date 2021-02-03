@@ -61,7 +61,7 @@ datablock ShapeBaseImageData(ChargeRifleImage : SimpleChargeImageFramework_SemiA
 	shellCount = 1; //projectiles per fire state
 
 	markerLightSupport = 1;
-	markerLightMaxRange = 250;
+	markerLightMaxRange = 256;
 	markerLightMaxAngle = 3.14159 / 16;
 	markerLightSpread = 0.0002; //defaults to .spread, defined above
 

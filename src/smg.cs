@@ -74,8 +74,6 @@ datablock ShapeBaseImageData(ChargeSMGImage : SimpleChargeImageFramework_Auto)
 function ChargeSMGImage::onFire(%this, %obj, %slot)
 {
 	SimpleChargeImage::onFire(%this, %obj, %slot);
-	cancel(%obj.releaseSoundSchedule);
-	%obj.releaseSoundSchedule = schedule(200, %obj, playSMGReleaseSound, %obj);
 }
 
 function ChargeSMGImage::onUnmount(%this, %obj, %slot)

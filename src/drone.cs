@@ -20,7 +20,7 @@ datablock PlayerData(droneBotArmor : PlayerStandardArmor)
 	disableEmotes = 1;
 	disableBurn = 1;
 
-	maxDamage = 400;
+	maxDamage = 250;
 	useCustomPainEffects = 1;
 	painHighImage = "";
 	painMidImage = "";
@@ -67,6 +67,15 @@ datablock ShapeBaseImageData(droneJetImage)
 
 package ChargeLaserDrones
 {
+	function AIPlayer::setNodeColor(%obj, %node, %color)
+	{
+		if (%obj.isLaserTurret && !%obj.allowColorChange)
+		{
+			return;
+		}
+		parent::setNodeColor(%obj, %node, %color);
+	}
+
 	function Armor::onDisabled(%this, %obj, %state)
 	{
 		if (isObject(%obj.laserDroneSet))
@@ -83,6 +92,7 @@ package ChargeLaserDrones
 
 		if (%this.getName() $= "droneBotArmor")
 		{
+			%obj.client = "";
 			%obj.spawnExplosion(spawnProjectile, 1);
 			%obj.schedule(50, delete);
 			return;
@@ -108,6 +118,17 @@ package ChargeLaserDrones
 		return parent::onRemove(%this, %obj);
 	}
 
+	function Armor::damage(%this, %obj, %sourceObj, %pos, %damage, %damageType)
+	{
+		%pre = %obj.getDamageLevel();
+		%ret = parent::damage(%this, %obj, %sourceObj, %pos, %damage, %damageType);
+		if (%obj.getDamageLevel() > %pre && %this.getName() $= "droneBotArmor")
+		{
+			%obj.spawnExplosion(radioWaveProjectile, getWord(%obj.getScale(), 2) * 2);
+		}
+		return %ret;
+	}
+
 	function Player::emote(%obj, %emote)
 	{
 		if (%obj.getDatablock().disableEmotes)
@@ -124,6 +145,37 @@ package ChargeLaserDrones
 			return;
 		}
 		return parent::burn(%obj, %time);
+	}
+
+	function minigameCanDamage(%client, %victimObject)
+	{
+		// if (%client.getType() & $Typemasks::PlayerObjectType && %client.getDatablock().getName() $= "droneBotArmor")
+		// {
+		// 	%client = %client.sourceClient;
+		// }
+		// if (%victimObject.getType() & $Typemasks::PlayerObjectType && %victimObject.getDatablock().getName() $= "droneBotArmor")
+		// {
+		// 	%victimObject = %victimObject.sourceClient;
+		// }
+		return parent::minigameCanDamage(%client, %victimObject);
+	}
+
+	function getBrickgroupFromObject(%obj)
+	{
+		if (%obj.getType() & $Typemasks::PlayerObjectType && %obj.getDatablock().getName() $= "droneBotArmor")
+		{
+			return %obj.sourceClient.brickGroup;
+		}
+		return parent::getBrickgroupFromObject(%obj);
+	}
+
+	function getMinigameFromObject(%obj)
+	{
+		if (%obj.getType() & $Typemasks::PlayerObjectType && %obj.getDatablock().getName() $= "droneBotArmor")
+		{
+			return %obj.sourceClient.minigame;
+		}
+		return parent::getMinigameFromObject(%obj);
 	}
 };
 activatePackage(ChargeLaserDrones);
@@ -150,26 +202,15 @@ function laserDroneAILoop(%index)
 		}
 
 		%obj = $LaserDroneSimSet.getObject(%index);
+		droneAICheck(%obj);
 		%index--;
-
-		if ((%obj.LaserDroneExpireTime >= 0 && %obj.LaserDroneExpireTime < getSimTime()) 
-			|| %obj.getDamageState() !$= "Enabled")
-		{
-			%removeList[%removeCount++ - 1] = %obj;
-			continue;
-		}
-
-		//TODO: run AI function here
-	}
-
-	for (%i = 0; %i < %removeCount; %i++)
-	{
-		if (isObject(%removeList[%i])) { $LaserDroneSimSet.remove(%removeList[%i]); }
 	}
 
 	if (%index < 0) { %index = $LaserDroneSimSet.getCount(); }
 	$LaserDroneCheckSchedule = schedule(33, $LaserDroneSimSet, laserDroneAILoop, %index);
 }
+
+laserDroneAILoop(0);
 
 function Player::getLaserDroneSet(%pl)
 {
@@ -191,7 +232,7 @@ function Player::explodeLaserDrones(%pl)
 	}
 }
 
-function Player::spawnLaserDrone(%pl, %position)
+function Player::spawnLaserDrone(%pl, %position, %rightImage, %leftImage, %faceVector)
 {
 	%droneSet = %pl.getLaserDroneSet();
 
@@ -201,14 +242,72 @@ function Player::spawnLaserDrone(%pl, %position)
 	%bot.staticShapeMount = %mount;
 	%bot.sourceObject = %pl;
 	%bot.sourceClient = %pl.client;
+	%bot.client = %bot;
+	%bot.isBot = 1;
+	%bot.isLaserTurret = 1;
+	%bot.maxYawSpeed = 50;
+	%bot.maxPitchSpeed = 50;
 
 	%mount.setTransform(%position);
 	%mount.mountObject(%bot, 1);
 	%bot.setTransform("0 0 0 0 0 1 " @ getRandom() * 3.14159 * 2);
 	%bot.mountImage(droneJetImage, 2);
 
+	if (isObject(%rightImage)) { %bot.mountImage(%rightImage, 0); }
+	if (isObject(%leftImage)) { %bot.mountImage(%leftImage, 1); }
+
+	%bot.setAimVector(%faceVector);
+	%bot.playThread(2, passive);
+	%bot.spawnExplosion(spawnProjectile, 1);
+
 	$LaserDroneSimSet.add(%bot);
 	%droneSet.add(%bot);
+}
+
+function droneAICheck(%drone)
+{
+	%drone.setVelocity("0 0 1");
+	%target = getClosestMarkerlight(%drone, 
+		%drone.getMountedImage(0).markerLightMaxRange, 
+		3.14 * 2, 
+		%drone.getMuzzleVector(0), 
+		%drone.getMuzzlePoint(0),
+		3.14 * 2);
+
+	if (isObject(%target))
+	{
+		if (!isObject(%drone.target))
+		{
+			%gainedTarget = 1;
+		}
+
+		%drone.target = %target;
+		%drone.setAimObject(%target);
+		%drone.setImageTrigger(0, 1);
+		%drone.triggerSchedule = %drone.schedule(500, setImageTrigger, 1, 1);
+	}
+	else
+	{
+		if (isObject(%drone.target))
+		{
+			%lostTarget = 1;
+		}
+		%drone.target = "";
+		%drone.clearAim();
+		%drone.setImageTrigger(0, 0);
+		%drone.setImageTrigger(1, 0);
+		cancel(%drone.triggerSchedule);
+	}
+
+	if (%lostTarget)
+	{
+		%drone.playThread(2, passive);
+	}
+	if (%gainedTarget)
+	{
+		%drone.playThread(2, root);
+	}
+	return (%drone.target + 0) SPC (%lostTarget + 0) SPC (%gainedTarget + 0);
 }
 
 
@@ -337,7 +436,7 @@ function droneDeployImage::onChargeStop(%this, %obj, %slot) // overcooked!
 function droneDeployImage::onChargeStart(%this, %obj, %slot)
 {
 	%obj.droneDeploySlot = %obj.currTool;
-	%obj.playthread(0, shiftRight);
+	%obj.playThread(0, shiftRight);
 	%obj.spearReadySched = %obj.schedule(500, playThread, 0, spearReady);
 }
 
@@ -374,7 +473,11 @@ function droneDeployProjectile::onCollision(%this, %obj, %col, %fade, %pos, %nor
 	if (isFunction(%obj.sourceObject.getClassName(), "spawnLaserDrone")
 		&& %obj.sourceObject.getDamageState() $= "Enabled")
 	{
-		%obj.sourceObject.spawnLaserDrone(vectorAdd(%pos, "0 0 2"));
+		%faceVector = vectorNormalize(vectorSub(%pos, %obj.initialPosition));
+		%obj.sourceObject.spawnLaserDrone(vectorAdd(%pos, vectorScale(%normal, 2)), 
+			droneBurstGunImage, 
+			droneBurstGunImageLeft,
+			getWords(%faceVector, 0, 1));
 	}
 	%obj.delete();
 }
@@ -386,10 +489,133 @@ function droneDeployProjectile::onCollision(%this, %obj, %col, %fade, %pos, %nor
 
 
 
-datablock ShapeBaseImageData(droneBurstGunItem)
+datablock ShapeBaseImageData(droneBurstGunImage : SimpleChargeImageFramework_Auto)
 {
 	shapeFile = "./resources/droneBurstGun.dts";
 	emap = true;
+	mountPoint = 0;
+	offset = "0 0 0";
+	eyeOffset = 0;
+	rotation = "";
 
+	correctMuzzleVector = true;
+	className = "WeaponImage";
+
+	projectile = ChargeLaserSMGProjectile;
+	projectileType = Projectile;
+
+	casing = gunShellDebris;
+	shellExitDir        = "1.0 0 1.0";
+	shellExitOffset     = "0 0 0";
+	shellExitVariance   = 15.0;	
+	shellVelocity       = 7.0;
+
+	doColorShift = true;
+	colorShiftColor = "1 1 1 1";
+
+	maxCharge = 10000; //clip
+	chargeRate = 10000; //how fast to reload
+	chargeTickTime = 100; //time between charge ticks, in milliseconds
+	discharge = 0; //fire cost
+	chargeDisableTime = 1000; //time between firing and charging resuming
+	spread = 0.0012; //larger = more spread
+	shellCount = 1; //projectiles per fire state
 	
+	markerLightSupport = 1;
+	markerLightMaxRange = 128;
+	markerLightSpread = 0.0012; //defaults to .spread, defined above
+	markerLightAngleIgnore = 3.1415 * 2;
+
+	stateSound[4]						= ChargeLaserQuadshotSound;
+	stateTimeoutValue[5]				= 0.9;
+	stateEmitter[5]						= LaserSmokeEmitter;
+	stateEmitterTime[5]					= 0.7;
 };
+datablock ShapeBaseImageData(droneBurstGunImageLeft : droneBurstGunImage) { mountPoint = 1; };
+
+function droneBurstGunImage::onFire(%this, %obj, %slot) { drone_SMGSubFire(%this, %obj, %slot, 0, 0); }
+function droneBurstGunImageLeft::onFire(%this, %obj, %slot) { drone_SMGSubFire(%this, %obj, %slot, 0, 1); }
+
+function drone_SMGSubFire(%this, %obj, %slot, %count, %left)
+{
+	if (%obj.getDamageState() !$= "Enabled" || %count >= 4 || %obj.getMountedImage(%slot) != %this)
+	{
+		return;
+	}
+
+	if (!%left)
+	{
+		%obj.playThread(0, shiftAway);
+	}
+	else
+	{
+		%obj.playThread(1, leftRecoil);
+	}
+
+	SimpleChargeImage::onFire(%this, %obj, %slot);
+	cancel(%obj.subFireSchedule[%left]);
+	%obj.subFireSchedule[%left] = schedule(80, %obj, drone_SMGSubFire, %this, %obj, %slot, %count + 1, %left);
+}
+
+
+
+
+
+
+
+
+
+datablock ShapeBaseImageData(droneRifleGunImage : SimpleChargeImageFramework_Auto)
+{
+	shapeFile = "./resources/droneRifleGun.dts";
+	emap = true;
+	mountPoint = 0;
+	offset = "0 0 0";
+	eyeOffset = 0;
+	rotation = "";
+
+	correctMuzzleVector = true;
+	className = "WeaponImage";
+
+	projectile = ChargeLaserRifleProjectile;
+	projectileType = Projectile;
+
+	casing = gunShellDebris;
+	shellExitDir        = "1.0 0 1.0";
+	shellExitOffset     = "0 0 0";
+	shellExitVariance   = 15.0;	
+	shellVelocity       = 7.0;
+
+	doColorShift = true;
+	colorShiftColor = "1 1 1 1";
+
+	maxCharge = 10000; //clip
+	chargeRate = 10000; //how fast to reload
+	chargeTickTime = 100; //time between charge ticks, in milliseconds
+	discharge = 0; //fire cost
+	chargeDisableTime = 1000; //time between firing and charging resuming
+	spread = 0.0002; //larger = more spread
+	shellCount = 1; //projectiles per fire state
+	
+	markerLightSupport = 1;
+	markerLightMaxRange = 256;
+	markerLightSpread = 0.0012; //defaults to .spread, defined above
+	markerLightAngleIgnore = 3.1415 * 2;
+
+	stateSound[4]						= ChargeLaserRifleBlastSound;
+	stateTimeoutValue[5]				= 0.9;
+	stateEmitter[5]						= LaserSmokeEmitter;
+	stateEmitterTime[5]					= 0.7;
+};
+datablock ShapeBaseImageData(droneRifleGunImageLeft : droneRifleGunImage) { mountPoint = 1; };
+
+function droneRifleGunImage::onFire(%this, %obj, %slot)
+{
+	%obj.playThread(0, shiftAway);
+	SimpleChargeImage::onFire(%this, %obj, %slot);
+}
+function droneRifleGunImageLeft::onFire(%this, %obj, %slot)
+{
+	%obj.playThread(0, leftRecoil);
+	SimpleChargeImage::onFire(%this, %obj, %slot);
+}

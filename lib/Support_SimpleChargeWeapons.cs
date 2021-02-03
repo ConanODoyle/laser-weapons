@@ -22,6 +22,7 @@ package Support_SimpleChargeWeapons
 	{
 		if (%obj.getClassName() $= "AIPlayer")
 		{
+			%obj.setImageAmmo(%slot, 1);
 			return;
 		}
 
@@ -319,7 +320,7 @@ function SimpleChargeImage::onFire(%this, %obj, %slot)
 {
 	if (%obj.getClassName() !$= "Player")
 	{
-		%obj.weaponnCharge[%obj.currTool] = %this.discharge;
+		%obj.weaponCharge[%obj.currTool] = %this.discharge;
 	}
 
 	if (%obj.weaponCharge[%obj.currTool] < %this.discharge || %obj.getDamagePercent() >= 1.0)
@@ -348,7 +349,7 @@ function SimpleChargeImage::onFire(%this, %obj, %slot)
 	{
 		%searchProj = isObject(%this.markerlightProjectile) ? %this.markerlightProjectile : %this.projectile;
 		%muzzleVector = getMarkerlightVector(%obj, %searchProj, %this.markerlightMaxRange, 
-			%this.markerlightMaxAngle, %obj.getMuzzleVector(%slot), %obj.getMuzzlePoint(%slot));
+			%this.markerlightMaxAngle, %obj.getMuzzleVector(%slot), %obj.getMuzzlePoint(%slot), %this.markerlightAngleIgnore);
 		%foundTarget = getField(%muzzleVector, 1);
 		%muzzleVector = getField(%muzzleVector, 0);
 
@@ -364,6 +365,7 @@ function SimpleChargeImage::onFire(%this, %obj, %slot)
 		%muzzleVector = %obj.getMuzzleVector(%slot);
 	}
 
+	%projClient = isObject(%obj.client) ? %obj.client : %obj.sourceClient;
 	for(%shell = 0; %shell < %shellcount; %shell++)
 	{
 		%vector = %muzzleVector;
@@ -384,7 +386,7 @@ function SimpleChargeImage::onFire(%this, %obj, %slot)
 			initialPosition = %obj.getMuzzlePoint(%slot);
 			sourceObject = %obj;
 			sourceSlot = %slot;
-			client = %obj.client;
+			client = %projClient;
 		};
 		MissionCleanup.add(%p);
 	}
@@ -414,7 +416,7 @@ function Player::setLaserChargePercent(%pl, %percent)
 		%pl.weaponCharge[%i] = mFloor(%maxCharge * %percent / 100);
 		%pl.nextChargeTime[%i] = (getSimTime() + %chargeTickTime) | 0;
 
-		%equipped = (%pl.currTool != %i || %pl.getMountedImage(0) != %pl.tool[%i].image.getID()) ? 0 : 1;
+		%equipped = (%pl.currTool != %i || (isObject(%img) && %pl.getMountedImage(0) != %img.getID())) ? 0 : 1;
 		
 		if (%maxCharge > 0 && %equipped)
 		{
@@ -441,7 +443,7 @@ function Player::AddLaserCharge(%pl, %amount)
 		%pl.weaponCharge[%i] = getMax(getMin(%maxCharge, %pl.weaponCharge[%i] + %amount), 0);
 		%pl.nextChargeTime[%i] = (getSimTime() + %chargeTickTime) | 0;
 
-		%equipped = (%pl.currTool != %i || %pl.getMountedImage(0) != %pl.tool[%i].image.getID()) ? 0 : 1;
+		%equipped = (%pl.currTool != %i || (isObject(%img) && %pl.getMountedImage(0) != %img.getID())) ? 0 : 1;
 		
 		if (%maxCharge > 0 && %equipped)
 		{

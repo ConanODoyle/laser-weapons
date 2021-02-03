@@ -229,9 +229,16 @@ function empGrenadeProjectile::onExplode(%this, %obj, %pos)
 
 			if (%visible)
 			{
-				%col.zapTicks = 3;
-				%col.mountImage(electroZapImage, 1);
-				%col.attachMarkerlight(%this.markerlightTime);
+				if (%col.getDatablock().getName() $= "droneBotArmor")
+				{
+					%col.kill();
+				}
+				else
+				{
+					%col.zapTicks = 3;
+					%col.mountImage(electroZapImage, 1);
+					%col.attachMarkerlight(%this.markerlightTime);
+				}
 			}
 		}
 	}

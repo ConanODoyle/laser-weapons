@@ -272,14 +272,15 @@ function attachFixedMarkerlight(%pos, %time)
 	%shape.attachMarkerlight(%time);
 }
 
-function getClosestMarkerlight(%searcher, %maxRange, %maxAngle, %muzzleVector, %muzzlePos)
+function getClosestMarkerlight(%searcher, %maxRange, %maxAngle, %muzzleVector, %muzzlePos, %angleIgnore)
 {
 	//minigameCanDamage: -1 if neither object is in a minigame, 0 if cannot, 1 if can
 	//valid target if -1 or 1
 	for (%i = 0; %i < $MarkerlightSimSet.getCount(); %i++)
 	{
 		%obj = $MarkerlightSimSet.getObject(%i);
-		if (%obj.getDamageState() !$= "Enabled" || %obj == %searcher || !minigameCanDamage(%obj, %searcher))
+		if (%obj.getDamageState() !$= "Enabled" || %obj == %searcher || !minigameCanDamage(%obj, %searcher)
+			|| %searcher.sourceObject == %obj)
 		{
 			continue;
 		}
@@ -312,16 +313,15 @@ function getClosestMarkerlight(%searcher, %maxRange, %maxAngle, %muzzleVector, %
 		//best target selection
 		//change if one of the following:
 		//no value set
-		//best vs current angle is bigger than %angleIgnore, AND best angle is more than current angle
+		//best vs new angle is bigger than %angleIgnore, AND best angle is more than current angle
 		//best distance is more than current target distance, AND angle difference is more than %angleIgnore
 
-		%angleIgnore = 0.08;
 		%angleDiff = mAbs(%bestAngle - %angle);
 		// talk((%angleDiff > %angleIgnore) @ " | ba:" @ %bestAngle @ " | a:" @ %angle @ " | ad:" @ %angleDiff);
 
 		if (%bestAngle $= "" 
 			|| (%bestAngle > %angle && %angleDiff > %angleIgnore)
-			|| (%bestDistance > %dist && %angleDiff < %angleIgnore))
+			|| (%bestDistance > %dist && %angleDiff <= %angleIgnore))
 		{
 			%bestAngle = %angle;
 			%bestDistance = %dist;
@@ -331,15 +331,16 @@ function getClosestMarkerlight(%searcher, %maxRange, %maxAngle, %muzzleVector, %
 	return %bestTarget;
 }
 
-function getMarkerlightVector(%searcher, %projDB, %maxRange, %maxAngle, %muzzleVector, %muzzlePos)
+function getMarkerlightVector(%searcher, %projDB, %maxRange, %maxAngle, %muzzleVector, %muzzlePos, %angleIgnore)
 {
 	//defaults
 	if (%maxRange <= 0) { %maxRange = 100; }
 	if (%maxAngle <= 0) { %maxAngle = 3.14159265 / 8; }
 	if (%muzzleVector $= "") { %muzzleVector = %searcher.getMuzzleVector(0); }
 	if (%muzzlePos $= "") { %muzzlePos = %searcher.getMuzzlePoint(0); }
+	if (%angleIgnore $= "") { %angleIgnore = 0.08; }
 
-	%obj = getClosestMarkerlight(%searcher, %maxRange, %maxAngle, %muzzleVector, %muzzlePos);
+	%obj = getClosestMarkerlight(%searcher, %maxRange, %maxAngle, %muzzleVector, %muzzlePos, %angleIgnore);
 
 	if (!isObject(%obj))
 	{
@@ -364,14 +365,19 @@ function getMarkerlightVector(%searcher, %projDB, %maxRange, %maxAngle, %muzzleV
 
 function calculateLeadLocation_Iterative(%obj, %pos0, %pos1, %speed0, %vel1)
 {
+	%masks = $TypeMasks::fxBrickObjectType | $Typemasks::StaticObjectType | $Typemasks::PlayerObjectType;
+	%downRay = containerRaycast(vectorAdd(%obj.position, "0 0 0.01"), vectorAdd(%obj.position, "0 0 -0.01"), %masks, %obj);
+	if (!isObject(%downRay)) { %gravity = 0; }
+	else { %gravity = 9.8; }
+
 	%currTime = vectorDist(%pos0, %pos1) / %speed0;
-	%finalPos = calculateFutureGravityPosition(%pos1, %vel1, %currTime);
+	%finalPos = calculateFutureGravityPosition(%pos1, %vel1, %currTime, %gravity);
 
 	// talk("iter: 0 time: " @ mFloatLength(%currTime, 2));
 	for (%i = 1; %i <= 16; %i++)
 	{
 		%nextTime = vectorDist(%finalPos, %pos0) / %speed0;
-		%nextFinalPos = calculateFutureGravityPosition(%obj, %pos1, %vel1, %nextTime);
+		%nextFinalPos = calculateFutureGravityPosition(%obj, %pos1, %vel1, %nextTime, %gravity);
 		%nextDelta = mAbs(%nextTime - %currTime);
 
 		// talk("iter: " @ %i @ " time: " @ mFloatLength(%nextTime, 2));
@@ -392,13 +398,15 @@ function calculateLeadLocation_Iterative(%obj, %pos0, %pos1, %speed0, %vel1)
 	return %finalPos;
 }
 
-function calculateFutureGravityPosition(%obj, %pos, %vel, %time)
+function calculateFutureGravityPosition(%obj, %pos, %vel, %time, %gravity)
 {
 	%xy = getWords(%vel, 0, 1);
 	%z = getWords(%vel, 2);
 
+	//check if on floor: if so, do not consider gravity
+
 	%xyPos = vectorAdd(vectorScale(%xy, %time), %pos);
-	%zDelta = (%z * %time) - (9.8 * %time * %time);
+	%zDelta = (%z * %time) - (%gravity * %time * %time);
 	%finalPos = vectorAdd(%xyPos, "0 0 " @ %zDelta);
 
 	%masks = $TypeMasks::fxBrickObjectType | $Typemasks::StaticObjectType | $Typemasks::PlayerObjectType;

@@ -95,7 +95,7 @@ datablock ParticleEmitterData(markerlightTrailEmitter)
 
 datablock ProjectileData(MarkerlightRifleProjectile : ChargeLaserPistolProjectile)
 {
-	directDamage        = 10;
+	directDamage        = 2;
 	directDamageType    = $DamageType::DMR;
 	radiusDamageType    = $DamageType::DMR;
 
@@ -151,11 +151,11 @@ datablock ShapeBaseImageData(MarkerlightRifleImage)
 	colorShiftColor = MarkerlightRifleItem.colorShiftColor;
 
 	// Weapon properties
-	maxCharge = 120; //clip
+	maxCharge = 60; //clip
 	chargeRate = 2; //how fast to reload
-	chargeTickTime = 200; //time between charge ticks, in milliseconds
+	chargeTickTime = 50; //time between charge ticks, in milliseconds
 	discharge = 5; //fire cost
-	chargeDisableTime = 3000; //time between firing and charging resuming
+	chargeDisableTime = 2000; //time between firing and charging resuming
 	spread = 0.001; //larger = more spread
 	shellCount = 1; //projectiles per fire state
 
