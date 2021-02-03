@@ -85,12 +85,12 @@ datablock ShapeBaseImageData(ChargePistolImage : SimpleChargeImageFramework_Semi
 	colorShiftColor = ChargePistolItem.colorShiftColor;
 
 	// Weapon properties
-	maxCharge = 60; //clip
+	maxCharge = 80; //clip
 	chargeRate = 6; //how fast to reload
 	chargeTickTime = 50; //time between charge ticks, in milliseconds
 	discharge = 10; //fire cost
 	chargeDisableTime = 800; //time between firing and charging resuming
-	spread = 0.001; //larger = more spread
+	spread = 0.0008; //larger = more spread
 	shellCount = 1; //projectiles per fire state
 
 	stateTimeoutValue[1] = 0.08; //reload check state timeout override;
