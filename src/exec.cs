@@ -72,3 +72,5 @@ exec("./smg.cs");
 exec("./markerlight.cs");
 exec("./empgrenade.cs");
 exec("./drone.cs");
+exec("./droneGuns.cs");
+exec("./droneDeploy.cs");
