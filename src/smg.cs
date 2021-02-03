@@ -55,12 +55,12 @@ datablock ShapeBaseImageData(ChargeSMGImage : SimpleChargeImageFramework_Auto)
 	chargeTickTime = 85; //time between charge ticks, in milliseconds
 	discharge = 10; //fire cost
 	chargeDisableTime = 1800; //time between firing and charging resuming
-	spread = 0.0022; //larger = more spread
+	spread = 0.0018; //larger = more spread
 	shellCount = 1; //projectiles per fire state
 	
 	markerLightSupport = 1;
 	markerLightMaxRange = 64;
-	markerLightSpread = 0.0012; //defaults to .spread, defined above
+	markerLightSpread = 0.0010; //defaults to .spread, defined above
 
 	stateTimeoutValue[1] = 0.06; //reload check state timeout override;
 	stateTimeoutValue[4] = 0.01; //fire state timeout override
