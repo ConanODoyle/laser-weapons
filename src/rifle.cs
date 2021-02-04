@@ -62,7 +62,7 @@ datablock ShapeBaseImageData(ChargeRifleImage : SimpleChargeImageFramework_SemiA
 
 	markerLightSupport = 1;
 	markerLightMaxRange = 256;
-	markerLightMaxAngle = 3.14159 / 16;
+	markerLightMaxAngle = 3.14159 / 14;
 	markerLightSpread = 0.0002; //defaults to .spread, defined above
 
 	stateTimeoutValue[4] = 0.1; //fire state timeout override
