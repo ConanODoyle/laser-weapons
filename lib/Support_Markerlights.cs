@@ -124,7 +124,7 @@ package MarkerlightPackage
 
 	function WeaponImage::checkAmmo(%this, %obj, %slot)
 	{
-		if (%this.markerlightSupport && isFunction(getMarkerlightVector) && isObject(%obj.client) && %obj.client != %object)
+		if (%this.markerlightSupport && isFunction(getMarkerlightVector) && isObject(%obj.client) && %obj.client.getClassName() $= "GameConnection")
 		{
 			%searchProj = isObject(%this.markerlightProjectile) ? %this.markerlightProjectile : %this.projectile;
 
@@ -283,7 +283,9 @@ function getClosestMarkerlight(%searcher, %maxRange, %maxAngle, %muzzleVector, %
 	{
 		%obj = $MarkerlightSimSet.getObject(%i);
 		if (%obj.getDamageState() !$= "Enabled" || %obj == %searcher || !minigameCanDamage(%obj, %searcher)
-			|| %searcher.sourceObject == %obj)
+			|| (%searcher.sourceObject == %obj && %searcher.isLaserTurret) 
+			|| (%searcher.sourceObject == %obj.sourceObject && %obj.isLaserTurret && %searcher.isLaserTurret)
+			|| (%searcher == %obj.sourceObject && %obj.isLaserTurret))
 		{
 			continue;
 		}
@@ -379,20 +381,20 @@ function calculateLeadLocation_Iterative(%obj, %pos0, %pos1, %speed0, %vel1)
 {
 	%masks = $TypeMasks::fxBrickObjectType | $Typemasks::StaticObjectType | $Typemasks::PlayerObjectType;
 	%downRay = containerRaycast(vectorAdd(%obj.position, "0 0 0.01"), vectorAdd(%obj.position, "0 0 -0.01"), %masks, %obj);
-	if (!isObject(%downRay)) { %gravity = 0; }
+	if (isObject(%downRay)) { %gravity = 0; }
 	else { %gravity = 9.8; }
 
 	%currTime = vectorDist(%pos0, %pos1) / %speed0;
 	%finalPos = calculateFutureGravityPosition(%pos1, %vel1, %currTime, %gravity);
 
-	// talk("iter: 0 time: " @ mFloatLength(%currTime, 2));
+	// talk("iter: 0 time: " @ mFloatLength(%currTime, 2) @ " gravity: " @ %gravity);
 	for (%i = 1; %i <= 16; %i++)
 	{
 		%nextTime = vectorDist(%finalPos, %pos0) / %speed0;
 		%nextFinalPos = calculateFutureGravityPosition(%obj, %pos1, %vel1, %nextTime, %gravity);
 		%nextDelta = mAbs(%nextTime - %currTime);
 
-		// talk("iter: " @ %i @ " time: " @ mFloatLength(%nextTime, 2));
+		// talk("iter: " @ %i @ " time: " @ mFloatLength(%nextTime, 2) @ " gravity: " @ %gravity);
 		if (%nextDelta < 0.01)
 		{
 			%currTime = %nextTime;
@@ -414,8 +416,6 @@ function calculateFutureGravityPosition(%obj, %pos, %vel, %time, %gravity)
 {
 	%xy = getWords(%vel, 0, 1);
 	%z = getWords(%vel, 2);
-
-	//check if on floor: if so, do not consider gravity
 
 	%xyPos = vectorAdd(vectorScale(%xy, %time), %pos);
 	%zDelta = (%z * %time) - (%gravity * %time * %time);
