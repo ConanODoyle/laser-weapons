@@ -29,7 +29,7 @@ datablock PlayerData(droneBotArmor : PlayerStandardArmor)
 
 datablock DebrisData(droneBotDebris)
 {
-	emitters = "jeepDebrisTrailEmitter";
+	emitters = "droneDebrisTrailEmitter";
 
 	shapeFile = "./droneDebris.dts";
 	lifetime = 3.0;
@@ -48,12 +48,12 @@ datablock DebrisData(droneBotDebris)
 datablock ExplosionData(droneBotExplosion)
 {
 	//explosionShape = "";
-	lifeTimeMS = 150;
+	lifeTimeMS = 180;
 
 	soundProfile = vehicleExplosionSound;
 
-	emitter[0] = vehicleExplosionEmitter;
-	emitter[1] = vehicleExplosionEmitter2;
+	emitter[0] = droneExplosionEmitter;
+	emitter[1] = droneExplosionEmitter2;
 
 	debris = droneBotDebris;
 	debrisNum = 1;

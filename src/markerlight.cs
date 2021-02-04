@@ -1,23 +1,3 @@
-//explosion
-datablock ParticleEmitterData(markerlightExplosionEmitter)
-{
-	ejectionPeriodMS = 7;
-	periodVarianceMS = 0;
-	ejectionVelocity = 0;
-	velocityVariance = 0.0;
-	ejectionOffset   = 0;
-	thetaMin         = 0;
-	thetaMax         = 180;
-	phiReferenceVel  = 0;
-	phiVariance      = 360;
-	overrideAdvance = false;
-	particles = "markerlightParticleB";
-
-	useEmitterColors = true;
-
-	uiName = "Markerlight Explosion";
-};
-
 datablock ExplosionData(markerlightExplosion)
 {
 	//explosionShape = "";
@@ -43,54 +23,6 @@ datablock ExplosionData(markerlightExplosion)
 	lightEndRadius = 0;
 	lightStartColor = "0.5 1 1";
 	lightEndColor = "0 0 0";
-};
-
-
-//trail
-datablock ParticleData(markerlightTrailParticle)
- {
-   dragCoefficient      = 3;
-   gravityCoefficient   = -0.0;
-   inheritedVelFactor   = 1.0;
-   constantAcceleration = 0.0;
-   lifetimeMS           = 250;
-   lifetimeVarianceMS   = 50;
-   textureName          = "./resources/bolt";
-   spinSpeed		   = 0.0;
-   spinRandomMin		= 0.0;
-   spinRandomMax		= 0.0;
-   colors[0]     = "0.2 1 1 0.9";
-   colors[1]     = "0.1 1 1 0.5";
-   colors[2]     = "0 1 1 0";
-
-   sizes[0]      = 0.1;
-   sizes[1]      = 0.1;
-   sizes[2]      = 0.05;
-
-   times[0] = 0.0;
-   times[1] = 0.8;
-   times[2] = 1.0;
-
-   useInvAlpha = false;
-};
-
-datablock ParticleEmitterData(markerlightTrailEmitter)
-{
-   ejectionPeriodMS = 3;
-   periodVarianceMS = 1;
-   ejectionVelocity = 0.15;
-   velocityVariance = 0.1;
-   ejectionOffset   = 0.1;
-   thetaMin         = 0;
-   thetaMax         = 180;
-   phiReferenceVel  = 0;
-   phiVariance      = 360;
-   overrideAdvance = false;
-   particles = "markerlightTrailParticle";
-
-   useEmitterColors = true;
-
-   uiName = "Markerlight Trail";
 };
 
 datablock ProjectileData(MarkerlightRifleProjectile : ChargeLaserPistolProjectile)

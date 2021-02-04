@@ -338,3 +338,178 @@ datablock ParticleEmitterData(DroneJetEmitter : playerJetEmitter)
 	particles = "DroneJetParticle";
 	ejectionVelocity = 0;
 };
+
+
+
+//drone explosion
+datablock ParticleData(droneExplosionParticle : vehicleExplosionParticle)
+{
+	dragCoefficient = 12;
+	gravityCoefficient = -0.1;
+	lifetimeMS = 900;
+	lifetimeVarianceMS = 300;
+	colors[1] = "0.3 0.3 0.4 0";
+	colors[0] = "0.0 0.0 0.0 0.9";
+	sizes[0] = 3;
+	sizes[1] = 5;
+};
+
+datablock ParticleEmitterData(droneExplosionEmitter : vehicleExplosionEmitter)
+{
+	ejectionPeriodMS = 2;
+	thetaMin = 0;
+	thetaMax = 180;
+	lifetimeMS = 31;
+	ejectionVelocity = 26;
+	velocityVariance = 1;
+	particles = "droneExplosionParticle";
+	uiName = "";
+};
+
+datablock ParticleData(droneExplosionParticle2 : vehicleExplosionParticle2)
+{
+	spinSpeed = 0;
+	spinRandomMin = 0;
+	spinRandomMax = 0;
+	dragCoefficient = 5;
+	gravityCoefficient = 0;
+	lifetimeMS = 500;
+	lifetimeVarianceMS = 250;
+	textureName = "./resources/bolt";
+	colors[0] = "1.0 1.0 0.0 1.0";
+	colors[1] = "1.0 1.0 0.0 0.0";
+	sizes[0] = 0.8;
+	sizes[1] = 0.5;
+};
+
+datablock ParticleEmitterData(droneExplosionEmitter2 : vehicleExplosionEmitter2)
+{
+	ejectionPeriodMS = 3;
+	thetaMin = 0;
+	thetaMax = 180;
+	lifetimeMS = 1000;
+	ejectionVelocity = 8;
+	velocityVariance = 2;
+	particles = "droneExplosionParticle2";
+	uiName = "";
+	emitterNode = "";
+};
+
+datablock ParticleData(droneDebrisTrailParticle)
+{
+	dragCoefficient		= 3.0;
+	windCoefficient		= 0.0;
+	gravityCoefficient	= -0.5;
+	inheritedVelFactor	= 0.0;
+	constantAcceleration	= 0.0;
+	lifetimeMS		= 500;
+	lifetimeVarianceMS	= 150;
+	spinSpeed		= 10.0;
+	spinRandomMin		= -50.0;
+	spinRandomMax		= 50.0;
+	useInvAlpha		= true;
+	animateTexture		= false;
+	//framesPerSec		= 1;
+
+	textureName		= "base/data/particles/cloud";
+	//animTexName		= "~/data/particles/cloud";
+
+	// Interpolation variables
+	colors[0]	= "0.0 0.0 0.0 0.0";
+	colors[1]	= "0.0 0.0 0.0 0.250";
+	colors[2]	= "0.0 0.0 0.0 0.0";
+
+	sizes[0]	= 0.5;
+	sizes[1]	= 1.5;
+	sizes[2]	= 2;
+
+	times[0]	= 0.0;
+	times[1]	= 0.1;
+	times[2]	= 1.0;
+};
+
+datablock ParticleEmitterData(droneDebrisTrailEmitter)
+{
+	ejectionPeriodMS = 70;
+	periodVarianceMS = 0;
+	ejectionVelocity = 0.0;
+	velocityVariance = 0.0;
+	ejectionOffset   = 1.0;
+	thetaMin         = 0;
+	thetaMax         = 0;
+	phiReferenceVel  = 0;
+	phiVariance      = 360;
+	overrideAdvance = false;
+	particles = "droneDebrisTrailParticle";
+};
+
+
+
+//markerlight explosion
+datablock ParticleEmitterData(markerlightExplosionEmitter)
+{
+	ejectionPeriodMS = 7;
+	periodVarianceMS = 0;
+	ejectionVelocity = 0;
+	velocityVariance = 0.0;
+	ejectionOffset   = 0;
+	thetaMin         = 0;
+	thetaMax         = 180;
+	phiReferenceVel  = 0;
+	phiVariance      = 360;
+	overrideAdvance = false;
+	particles = "markerlightParticleB";
+
+	useEmitterColors = true;
+
+	uiName = "Markerlight Explosion";
+};
+
+
+
+//markerlight trail
+datablock ParticleData(markerlightTrailParticle)
+ {
+   dragCoefficient      = 3;
+   gravityCoefficient   = -0.0;
+   inheritedVelFactor   = 1.0;
+   constantAcceleration = 0.0;
+   lifetimeMS           = 250;
+   lifetimeVarianceMS   = 50;
+   textureName          = "./resources/bolt";
+   spinSpeed		   = 0.0;
+   spinRandomMin		= 0.0;
+   spinRandomMax		= 0.0;
+   colors[0]     = "0.2 1 1 0.9";
+   colors[1]     = "0.1 1 1 0.5";
+   colors[2]     = "0 1 1 0";
+
+   sizes[0]      = 0.1;
+   sizes[1]      = 0.1;
+   sizes[2]      = 0.05;
+
+   times[0] = 0.0;
+   times[1] = 0.8;
+   times[2] = 1.0;
+
+   useInvAlpha = false;
+};
+
+datablock ParticleEmitterData(markerlightTrailEmitter)
+{
+   ejectionPeriodMS = 3;
+   periodVarianceMS = 1;
+   ejectionVelocity = 0.15;
+   velocityVariance = 0.1;
+   ejectionOffset   = 0.1;
+   thetaMin         = 0;
+   thetaMax         = 180;
+   phiReferenceVel  = 0;
+   phiVariance      = 360;
+   overrideAdvance = false;
+   particles = "markerlightTrailParticle";
+
+   useEmitterColors = true;
+
+   uiName = "Markerlight Trail";
+};
