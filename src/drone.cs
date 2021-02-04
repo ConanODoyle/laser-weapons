@@ -132,6 +132,30 @@ datablock ShapeBaseImageData(droneJetImage)
 
 package ChargeLaserDrones
 {
+	function Player::activateStuff(%pl)
+	{
+		%mask = $TypeMasks::FxBrickObjectType | $TypeMasks::PlayerObjectType;
+		%start = %pl.getEyePoint();
+		%vec = %pl.getEyeVector();
+		%end = vectorAdd(%start, vectorScale(%vec, 5 * getWord(%pl.getScale(), 2)));
+		%search = containerRayCast(%start, %end, %mask, %pl);
+		%victim = getWord(%search, 0);
+		if (isObject(%victim) && %victim.isLaserTurret && %victim.sourceObject == %pl)
+		{
+			%i = new Item()
+			{
+				dataBlock = %victim.itemDB;
+			};
+			MissionCleanup.add(%i);
+			%i.setTransform(%victim.getTransform());
+			%i.schedulePop();
+
+			%victim.spawnExplosion(spawnProjectile, 1);
+			%victim.delete();
+		}
+		return parent::activateStuff(%pl);
+	}
+
 	function AIPlayer::setNodeColor(%obj, %node, %color)
 	{
 		if (%obj.isLaserTurret && !%obj.allowColorChange)
@@ -213,14 +237,6 @@ package ChargeLaserDrones
 
 	function minigameCanDamage(%client, %victimObject)
 	{
-		// if (%client.getType() & $Typemasks::PlayerObjectType && %client.getDatablock().getName() $= "droneBotArmor")
-		// {
-		// 	%client = %client.sourceClient;
-		// }
-		// if (%victimObject.getType() & $Typemasks::PlayerObjectType && %victimObject.getDatablock().getName() $= "droneBotArmor")
-		// {
-		// 	%victimObject = %victimObject.sourceClient;
-		// }
 		return parent::minigameCanDamage(%client, %victimObject);
 	}
 
@@ -235,7 +251,7 @@ package ChargeLaserDrones
 
 	function getMinigameFromObject(%obj)
 	{
-		if (%obj.getType() & $Typemasks::PlayerObjectType && %obj.getDatablock().getName() $= "droneBotArmor")
+		if (isObject(%obj) && %obj.getType() & $Typemasks::PlayerObjectType && %obj.getDatablock().getName() $= "droneBotArmor")
 		{
 			return %obj.sourceClient.minigame;
 		}
@@ -295,19 +311,18 @@ function droneAICheck(%drone)
 		%drone.target = %target;
 		%drone.setAimObject(%target);
 		%drone.setImageTrigger(0, 1);
-		%drone.triggerSchedule = %drone.schedule(500, setImageTrigger, 1, 1);
+		%drone.setImageTrigger(1, 1);
 	}
 	else
 	{
 		if (isObject(%drone.target))
 		{
 			%lostTarget = 1;
+			%drone.clearAim();
 		}
 		%drone.target = "";
-		%drone.clearAim();
 		%drone.setImageTrigger(0, 0);
 		%drone.setImageTrigger(1, 0);
-		cancel(%drone.triggerSchedule);
 	}
 
 	if (%lostTarget)
@@ -341,7 +356,7 @@ function Player::explodeLaserDrones(%pl)
 	}
 }
 
-function Player::spawnLaserDrone(%pl, %position, %rightImage, %leftImage, %faceVector, %colorScale)
+function Player::spawnLaserDrone(%pl, %position, %rightImage, %leftImage, %faceVector, %colorScale, %itemDB)
 {
 	%droneSet = %pl.getLaserDroneSet();
 
@@ -356,6 +371,7 @@ function Player::spawnLaserDrone(%pl, %position, %rightImage, %leftImage, %faceV
 	%bot.isLaserTurret = 1;
 	%bot.maxYawSpeed = 50;
 	%bot.maxPitchSpeed = 50;
+	%bot.itemDB = %itemDB;
 	%bot.timeAdded = getSimTime();
 
 	%bot.allowColorChange = 1;
@@ -365,7 +381,7 @@ function Player::spawnLaserDrone(%pl, %position, %rightImage, %leftImage, %faceV
 	}
 	%bot.setNodeColor("ALL", vectorScale(%pl.lastShapeNameColor, %colorScale) SPC 1);
 	%bot.setShapeName(%pl.client.name @ "'s Drone", 8564862);
-	%bot.setShapeNameDistance(10);
+	%bot.setShapeNameDistance(30);
 	%bot.setShapeNameColor(%pl.lastShapeNameColor);
 
 	%mount.setTransform(%position);
@@ -421,7 +437,8 @@ function serverCmdClearAllDrones(%cl)
 
 	while ($LaserDroneSimSet.getCount() > 0)
 	{
-		$LaserDroneSimSet.getObject(0).kill();
+		$LaserDroneSimSet.getObject(0).spawnExplosion(droneBotExplosionProjectile, 1);
+		$LaserDroneSimSet.getObject(0).delete();
 	}
 	messageAll('MsgClearBricks', "\c2" @ %cl.name @ " cleared all drones.");
 }

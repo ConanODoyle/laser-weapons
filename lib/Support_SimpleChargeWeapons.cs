@@ -365,7 +365,8 @@ function SimpleChargeImage::onFire(%this, %obj, %slot)
 		%muzzleVector = %obj.getMuzzleVector(%slot);
 	}
 
-	%projClient = isObject(%obj.client) ? %obj.client : %obj.sourceClient;
+	%projClient = %obj.isLaserTurret ? %obj.sourceClient : %obj.client;
+	%projSourceObj = %obj.isLaserTurret ? %obj.sourceObject : %obj;
 	for(%shell = 0; %shell < %shellcount; %shell++)
 	{
 		%vector = %muzzleVector;

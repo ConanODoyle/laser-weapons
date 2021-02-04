@@ -21,17 +21,17 @@ datablock ProjectileData(droneDeployProjectile)
 	brickExplosionMaxVolume = 0;
 	brickExplosionMaxVolumeFloating = 0;
 
-	armingDelay         = 1800;
-	lifetime            = 2000;
-	fadeDelay           = 1800;
-	bounceElasticity    = 0.1;
-	bounceFriction      = 0.8;
+	armingDelay         = 800;
+	lifetime            = 1000;
+	fadeDelay           = 800;
+	bounceElasticity    = 0.8;
+	bounceFriction      = 0.3;
 	isBallistic         = true;
 	gravityMod = 0.8;
 
 	hasLight    = false;
-	lightRadius = 0.0;
-	lightColor  = "0 0 0.5";
+	lightRadius = 1;
+	lightColor  = "0 0 0";
 
 	uiName = "";
 };
@@ -141,6 +141,7 @@ function droneBurstGunDeployImage::onFire(%this, %obj, %slot)
 		rightImage = droneBurstGunImage;
 		leftImage = droneBurstGunImageLeft;
 		colorScale = getWord(%this.colorShiftColor, 0);
+		itemDB = %this.item;
 	};
 
 	//removal from inventory
@@ -170,6 +171,7 @@ function droneRifleGunDeployImage::onFire(%this, %obj, %slot)
 		rightImage = droneRifleGunImage;
 		leftImage = droneRifleGunImageLeft;
 		colorScale = getWord(%this.colorShiftColor, 0);
+		itemDB = %this.item;
 	};
 
 	//removal from inventory
@@ -189,9 +191,8 @@ function droneDeployProjectile::onCollision(%this, %obj, %col, %fade, %pos, %nor
 	if (!(%col.getType() & $Typemasks::PlayerObjectType))
 	{
 		%obj.hitNormal = %normal;
-		%obj.explode();
+		// %obj.explode();
 	}
-	%obj.delete();
 }
 
 function droneDeployProjectile::onExplode(%this, %obj, %pos)
@@ -203,8 +204,9 @@ function droneDeployProjectile::onExplode(%this, %obj, %pos)
 		%obj.sourceObject.spawnLaserDrone(vectorAdd(%pos, vectorScale(%obj.hitNormal, 1)), 
 			%obj.rightImage, 
 			%obj.leftImage,
-			getWords(%faceVector, 0, 1),
-			%obj.colorScale);
+			vectorNormalize(getWords(%faceVector, 0, 1)),
+			%obj.colorScale,
+			%obj.itemDB);
 	}
 	Parent::onExplode(%this, %obj, %pos);
 }
