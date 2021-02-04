@@ -46,7 +46,7 @@ datablock ItemData(ChargePistolItem)
 	emap = true;
 
 	uiName = "Charge Pistol";
-	iconName = "Add-ons/Gamemode_Core_Rush/src/img/Icon_pistol";
+	iconName = "./resources/icon_pistol";
 	doColorShift = true;
 	colorShiftColor = "1 1 1 1";
 

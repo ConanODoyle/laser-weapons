@@ -14,7 +14,7 @@ datablock ItemData(ChargeRifleItem : ChargePistolItem)
 	shapeFile = "./resources/rifle.dts";
 
 	uiName = "Charge Rifle";
-	iconName = "Add-ons/Gamemode_Core_Rush/src/img/Icon_mid-range";
+	iconName = "./resources/icon_rifle";
 	doColorShift = true;
 	colorShiftColor = "1 1 1 1";
 

@@ -45,7 +45,7 @@ datablock ItemData(MarkerlightRifleItem : ChargePistolItem)
 	shapeFile = "./resources/markerlightrifle.dts";
 
 	uiName = "Markerlight Rifle";
-	iconName = "";
+	iconName = "./resources/icon_markerlight";
 	doColorShift = true;
 	colorShiftColor = "1 1 1 1";
 

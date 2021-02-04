@@ -50,7 +50,7 @@ datablock ItemData(droneBurstGunDeployItem)
 	emap = true;
 
 	uiName = "Burst Drone";
-	iconName = "";
+	iconName = "./resources/icon_drone";
 	colorShiftColor = "1 1 1 1";
 	doColorShift = true;
 

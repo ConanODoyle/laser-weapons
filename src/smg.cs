@@ -12,7 +12,7 @@ datablock ItemData(ChargeSMGItem : ChargePistolItem)
 
 	//gui stuff
 	uiName = "Charge SMG";
-	iconName = "Add-ons/Gamemode_Core_Rush/src/img/Icon_smg";
+	iconName = "./resources/icon_smg";
 	doColorShift = true;
 	colorShiftColor = "1 1 1 1";
 
