@@ -219,11 +219,13 @@ function empGrenadeProjectile::onCollision(%this, %obj, %col, %fade, %pos, %norm
 function empGrenadeProjectile::onExplode(%this, %obj, %pos)
 {
 	initContainerRadiusSearch(%pos, %this.explosion.damageRadius, $TypeMasks::PlayerObjectType);
+	%lineCount = 0;
 	while (isObject(%col = ContainerSearchNext()))
 	{
 		if (minigameCanDamage(%obj, %col) == 1)
 		{
-			%dist = vectorDist(%pos, %col.getHackPosition());
+			%colPos = %col.getHackPosition();
+			%dist = vectorDist(%pos, %colPos);
 
 			%visible = obstructRadiusDamageCheck(%pos, %col);
 
@@ -231,7 +233,7 @@ function empGrenadeProjectile::onExplode(%this, %obj, %pos)
 			{
 				if (%col.getDatablock().getName() $= "droneBotArmor")
 				{
-					%col.kill();
+					%col.schedule(33, kill);
 				}
 				else
 				{
@@ -239,10 +241,14 @@ function empGrenadeProjectile::onExplode(%this, %obj, %pos)
 					%col.mountImage(electroZapImage, 1);
 					%col.attachMarkerlight(%this.markerlightTime);
 				}
+				%shape = drawLine(%pos, %colPos, "1 1 1 1", 0.3);
+				%shape.schedule(getRandom() * 100 + 50, delete);
+				%lineCount++;
 			}
 		}
 	}
-	%count = getRandom(12, 20);
+	// talk("lines: " @ %lineCount);
+	%count = getRandom(12 - %lineCount, 20 - %lineCount);
 	for (%i = 0; %i < %count; %i++)
 	{
 		%shape = new StaticShape(lightningshape)
