@@ -66,6 +66,18 @@ datablock ExplosionData(ChargeLaserExplosion)
 	lightEndColor = "0 0 0";
 };
 
+datablock ExplosionData(ChargeLaserExplosionBlue : ChargeLaserExplosion)
+{
+	particleEmitter = ChargeLaserExplosionEmitterBlue;
+	emitter[0] = ChargeLaserExplosionRingEmitterBlue;
+
+	// Dynamic light
+	lightStartRadius = 4;
+	lightEndRadius = 2;
+	lightStartColor = "0 1 1";
+	lightEndColor = "0 0 0";
+};
+
 exec("./pistol.cs");
 exec("./rifle.cs");
 exec("./smg.cs");

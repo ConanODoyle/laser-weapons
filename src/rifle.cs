@@ -86,3 +86,53 @@ function ChargeRifleImage::onUnmount(%this, %obj, %slot)
 		%obj.client.centerprint("", 1);
 	}
 }
+
+
+
+
+
+
+
+
+
+
+datablock ProjectileData(ChargeLaserRifleProjectileBlue : ChargeLaserPistolProjectileBlue)
+{
+	directDamage        = 40;
+	directDamageType    = $DamageType::DMR;
+	radiusDamageType    = $DamageType::DMR;
+
+	muzzleVelocity = 200;
+	particleEmitter     = HeavyChargeLaserTracerBlue;
+};
+
+datablock ItemData(ChargeRifleItemBlue : ChargeRifleItem)
+{
+	shapeFile = "./resources/rifleBlue.dts";
+	uiName = "Charge Rifle (B)";
+	iconName = "./resources/icon_Rifle";
+	image = ChargeRifleImageBlue;
+};
+
+datablock ShapeBaseImageData(ChargeRifleImageBlue : ChargeRifleImage)
+{
+	// Basic Item properties
+	shapeFile = "./resources/rifleBlue.dts";
+	item = ChargeRifleItemBlue;
+	projectile = ChargeLaserRifleProjectileBlue;
+	colorShiftColor = ChargeRifleItemBlue.colorShiftColor;
+};
+
+function ChargeRifleImageBlue::onFire(%this, %obj, %slot)
+{
+	SimpleChargeImage::onFire(%this, %obj, %slot);
+}
+
+function ChargeRifleImageBlue::onUnmount(%this, %obj, %slot)
+{
+	if (isObject(%obj.client))
+	{
+		%obj.client.bottomprint("", 1, 1);
+		%obj.client.centerprint("", 1);
+	}
+}

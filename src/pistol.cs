@@ -1,7 +1,7 @@
 //Pistol
 datablock ProjectileData(ChargeLaserPistolProjectile)
 {
-	directDamage        = 14;
+	directDamage        = 15;
 	directDamageType    = $DamageType::Pistol;
 	radiusDamageType    = $DamageType::Pistol;
 
@@ -108,6 +108,56 @@ function ChargePistolImage::onFire(%this, %obj, %slot)
 }
 
 function ChargePistolImage::onUnmount(%this, %obj, %slot)
+{
+	if (isObject(%obj.client))
+	{
+		%obj.client.bottomprint("", 1, 1);
+		%obj.client.centerprint("", 1);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+datablock ProjectileData(ChargeLaserPistolProjectileBlue : ChargeLaserPistolProjectile)
+{
+	explosion           = ChargeLaserExplosionBlue;
+	particleEmitter     = ChargeLaserTracerBlue;
+
+	hasLight    = true;
+	lightRadius = 2.0;
+	lightColor  = "0 1 1";
+};
+
+datablock ItemData(ChargePistolItemBlue : ChargePistolItem)
+{
+	shapeFile = "./resources/pistolBlue.dts";
+	uiName = "Charge Pistol (B)";
+	iconName = "./resources/icon_pistol";
+	image = ChargePistolImageBlue;
+};
+
+datablock ShapeBaseImageData(ChargePistolImageBlue : ChargePistolImage)
+{
+	// Basic Item properties
+	shapeFile = "./resources/pistolBlue.dts";
+	item = ChargePistolItemBlue;
+	projectile = ChargeLaserPistolProjectileBlue;
+	colorShiftColor = ChargePistolItemBlue.colorShiftColor;
+};
+
+function ChargePistolImageBlue::onFire(%this, %obj, %slot)
+{
+	SimpleChargeImage::onFire(%this, %obj, %slot);
+}
+
+function ChargePistolImageBlue::onUnmount(%this, %obj, %slot)
 {
 	if (isObject(%obj.client))
 	{

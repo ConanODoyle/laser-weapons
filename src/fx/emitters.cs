@@ -59,6 +59,30 @@ datablock ParticleEmitterData(HeavyChargeLaserTracer : ChargeLaserTracer)
 {
 	particles = HeavyChargeLaserTrailParticle;
 };
+//blue
+datablock ParticleData(ChargeLaserTrailParticleBlue : ChargeLaserTrailParticle)
+{
+	colors[0]	= "0 1 1 1";
+	colors[1]	= "0.6 1 1 0.5";
+	colors[2]	= "0 1 1 0";
+};
+
+datablock ParticleEmitterData(ChargeLaserTracerBlue : ChargeLaserTracer)
+{
+	particles = ChargeLaserTrailParticleBlue;
+};
+
+datablock ParticleData(HeavyChargeLaserTrailParticleBlue : ChargeLaserTrailParticleBlue)
+{
+	lifetimeMS     = 1200;
+	sizes[1] = 0.25;
+	times[1] = 0.5;
+};
+
+datablock ParticleEmitterData(HeavyChargeLaserTracerBlue : ChargeLaserTracerBlue)
+{
+	particles = HeavyChargeLaserTrailParticleBlue;
+};
 
 
 
@@ -147,7 +171,7 @@ datablock ParticleEmitterData(ChargeLaserExplosionEmitter)
 	particles = "ChargeLaserExplosionParticle";
 
 	useEmitterColors = true;
-	uiName = "ChargeLaserExplosion";
+	uiName = "";
 };
 
 datablock ParticleData(ChargeLaserExplosionRingParticle)
@@ -187,7 +211,29 @@ datablock ParticleEmitterData(ChargeLaserExplosionRingEmitter)
 	particles = "ChargeLaserExplosionRingParticle";
 
 	useEmitterColors = true;
-	uiName = "ChargeLaserExplosionRing";
+	uiName = "";
+};
+//blue
+datablock ParticleData(ChargeLaserExplosionParticleBlue : ChargeLaserExplosionParticle)
+{
+	colors[0]     = "0 1 1 1";
+	colors[1]     = "0.3 1 1 0";
+};
+
+datablock ParticleEmitterData(ChargeLaserExplosionEmitterBlue : ChargeLaserExplosionEmitter)
+{
+	particles = "ChargeLaserExplosionParticleBlue";
+};
+
+datablock ParticleData(ChargeLaserExplosionRingParticleBlue : ChargeLaserExplosionRingParticle)
+{
+	colors[0]     = "0 1 1 1";
+	colors[1]     = "0 1 1 1";
+};
+
+datablock ParticleEmitterData(ChargeLaserExplosionRingEmitterBlue : ChargeLaserExplosionRingEmitter)
+{
+	particles = "ChargeLaserExplosionRingParticleBlue";
 };
 
 
