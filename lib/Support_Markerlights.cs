@@ -380,14 +380,14 @@ function getMarkerlightVector(%searcher, %projDB, %maxRange, %maxAngle, %muzzleV
 function calculateLeadLocation_Iterative(%obj, %pos0, %pos1, %speed0, %vel1)
 {
 	%masks = $TypeMasks::fxBrickObjectType | $Typemasks::StaticObjectType | $Typemasks::PlayerObjectType;
-	%downRay = containerRaycast(vectorAdd(%obj.position, "0 0 0.01"), vectorAdd(%obj.position, "0 0 -0.01"), %masks, %obj);
+	%downRay = containerRaycast(vectorAdd(%obj.getPosition(), "0 0 0.1"), vectorAdd(%obj.getPosition(), "0 0 -0.1"), %masks, %obj);
 	if (isObject(%downRay)) { %gravity = 0; }
 	else { %gravity = 9.8; }
 
 	%currTime = vectorDist(%pos0, %pos1) / %speed0;
 	%finalPos = calculateFutureGravityPosition(%pos1, %vel1, %currTime, %gravity);
 
-	// talk("iter: 0 time: " @ mFloatLength(%currTime, 2) @ " gravity: " @ %gravity);
+	// talk("iter: 0 time: " @ mFloatLength(%currTime, 2) @ " ray: " @ %downRay);
 	for (%i = 1; %i <= 16; %i++)
 	{
 		%nextTime = vectorDist(%finalPos, %pos0) / %speed0;
