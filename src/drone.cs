@@ -339,6 +339,7 @@ function droneAICheck(%drone)
 		%drone.playThread(2, passive);
 		serverPlay3D(droneIdleSound, %drone.getPosition());
 		%drone.lastPlayedPassiveSound = getSimTime();
+		%drone.playedSound = 0;
 	}
 	if (%gainedTarget)
 	{
