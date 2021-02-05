@@ -415,8 +415,8 @@ datablock ParticleData(droneDebrisTrailParticle)
 	//animTexName		= "~/data/particles/cloud";
 
 	// Interpolation variables
-	colors[0]	= "0.0 0.0 0.0 0.0";
-	colors[1]	= "0.0 0.0 0.0 0.250";
+	colors[0]	= "0.0 0.0 0.0 0";
+	colors[1]	= "0.0 0.0 0.0 1";
 	colors[2]	= "0.0 0.0 0.0 0.0";
 
 	sizes[0]	= 0.5;
@@ -430,13 +430,13 @@ datablock ParticleData(droneDebrisTrailParticle)
 
 datablock ParticleEmitterData(droneDebrisTrailEmitter)
 {
-	ejectionPeriodMS = 70;
+	ejectionPeriodMS = 20;
 	periodVarianceMS = 0;
 	ejectionVelocity = 0.0;
 	velocityVariance = 0.0;
-	ejectionOffset   = 1.0;
+	ejectionOffset   = 0.5;
 	thetaMin         = 0;
-	thetaMax         = 0;
+	thetaMax         = 90;
 	phiReferenceVel  = 0;
 	phiVariance      = 360;
 	overrideAdvance = false;

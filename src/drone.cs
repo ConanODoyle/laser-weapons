@@ -31,10 +31,10 @@ datablock DebrisData(droneBotDebris)
 {
 	emitters = "droneDebrisTrailEmitter";
 
-	shapeFile = "./droneDebris.dts";
+	shapeFile = "./resources/droneDebris.dts";
 	lifetime = 3.0;
-	minSpinSpeed = -300.0;
-	maxSpinSpeed = 300.0;
+	minSpinSpeed = -900.0;
+	maxSpinSpeed = 900.0;
 	elasticity = 0.5;
 	friction = 0.2;
 	numBounces = 2;
@@ -137,7 +137,7 @@ package ChargeLaserDrones
 		%mask = $TypeMasks::FxBrickObjectType | $TypeMasks::PlayerObjectType;
 		%start = %pl.getEyePoint();
 		%vec = %pl.getEyeVector();
-		%end = vectorAdd(%start, vectorScale(%vec, 5 * getWord(%pl.getScale(), 2)));
+		%end = vectorAdd(%start, vectorScale(%vec, 8 * getWord(%pl.getScale(), 2)));
 		%search = containerRayCast(%start, %end, %mask, %pl);
 		%victim = getWord(%search, 0);
 		if (isObject(%victim) && %victim.isLaserTurret && %victim.sourceObject == %pl)
@@ -147,7 +147,7 @@ package ChargeLaserDrones
 				dataBlock = %victim.itemDB;
 			};
 			MissionCleanup.add(%i);
-			%i.setTransform(%victim.getTransform());
+			%i.setTransform(%pl.getHackPosition());
 			%i.schedulePop();
 
 			%victim.spawnExplosion(spawnProjectile, 1);
@@ -181,6 +181,7 @@ package ChargeLaserDrones
 
 		if (%this.getName() $= "droneBotArmor")
 		{
+			%obj.client = "";
 			%obj.spawnExplosion(droneBotExplosionProjectile, 1);
 			%obj.schedule(50, delete);
 			return;
@@ -237,6 +238,14 @@ package ChargeLaserDrones
 
 	function minigameCanDamage(%client, %victimObject)
 	{
+		if (%client.isLaserTurret)
+		{
+			%client = %client.sourceObject;
+		}
+		if (%victimObject.isLaserTurret)
+		{
+			%victimObject = %victimObject.sourceObject;
+		}
 		return parent::minigameCanDamage(%client, %victimObject);
 	}
 
@@ -258,7 +267,7 @@ package ChargeLaserDrones
 		return parent::getMinigameFromObject(%obj);
 	}
 };
-activatePackage(ChargeLaserDrones);
+schedule(33, 0, activatePackage, ChargeLaserDrones);
 
 
 
@@ -394,7 +403,7 @@ function Player::spawnLaserDrone(%pl, %position, %rightImage, %leftImage, %faceV
 
 	%bot.setAimVector(%faceVector);
 	%bot.playThread(2, passive);
-	%bot.spawnExplosion(spawnProjectile, 1);
+	%bot.spawnExplosion(radioWaveProjectile, 3);
 
 	$LaserDroneSimSet.add(%bot);
 	%droneSet.add(%bot);
