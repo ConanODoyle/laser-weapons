@@ -2,8 +2,8 @@
 datablock ProjectileData(ChargeLaserRifleProjectile : ChargeLaserPistolProjectile)
 {
 	directDamage        = 40;
-	directDamageType    = $DamageType::DMR;
-	radiusDamageType    = $DamageType::DMR;
+	directDamageType    = $DamageType::LaserRifle;
+	radiusDamageType    = $DamageType::LaserRifle;
 
 	muzzleVelocity = 200;
 	particleEmitter     = HeavyChargeLaserTracer;
@@ -99,8 +99,8 @@ function ChargeRifleImage::onUnmount(%this, %obj, %slot)
 datablock ProjectileData(ChargeLaserRifleProjectileBlue : ChargeLaserPistolProjectileBlue)
 {
 	directDamage        = 40;
-	directDamageType    = $DamageType::DMR;
-	radiusDamageType    = $DamageType::DMR;
+	directDamageType    = $DamageType::LaserRifle;
+	radiusDamageType    = $DamageType::LaserRifle;
 
 	muzzleVelocity = 200;
 	particleEmitter     = HeavyChargeLaserTracerBlue;

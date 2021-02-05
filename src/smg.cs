@@ -2,8 +2,8 @@
 datablock ProjectileData(ChargeLaserSMGProjectile : ChargeLaserPistolProjectile)
 {
 	directDamage        = 10;
-	directDamageType    = $DamageType::SMG;
-	radiusDamageType    = $DamageType::SMG;
+	directDamageType    = $DamageType::LaserSMG;
+	radiusDamageType    = $DamageType::LaserSMG;
 };
 
 datablock ItemData(ChargeSMGItem : ChargePistolItem)
@@ -97,8 +97,8 @@ function ChargeSMGImage::onUnmount(%this, %obj, %slot)
 datablock ProjectileData(ChargeLaserSMGProjectileBlue : ChargeLaserPistolProjectileBlue)
 {
 	directDamage        = 10;
-	directDamageType    = $DamageType::SMG;
-	radiusDamageType    = $DamageType::SMG;
+	directDamageType    = $DamageType::LaserSMG;
+	radiusDamageType    = $DamageType::LaserSMG;
 };
 
 datablock ItemData(ChargeSMGItemBlue : ChargeSMGItem)

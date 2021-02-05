@@ -1,7 +1,8 @@
-// AddDamageType("Pistol",   '<bitmap:Add-ons/Gamemode_Core_Rush/src/img/ci_pist> %1',    '%2 <bitmap:Add-ons/Gamemode_Core_Rush/src/img/ci_pist> %1',0.2,1);
-// AddDamageType("SMG",   '<bitmap:Add-ons/Gamemode_Core_Rush/src/img/ci_smg> %1',    '%2 <bitmap:Add-ons/Gamemode_Core_Rush/src/img/ci_smg> %1',0.2,1);
-// AddDamageType("Shotgun",   '<bitmap:Add-ons/Gamemode_Core_Rush/src/img/ci_sg> %1',    '%2 <bitmap:Add-ons/Gamemode_Core_Rush/src/img/ci_sg> %1',0.2,1);
-// AddDamageType("DMR",   '<bitmap:Add-ons/Gamemode_Core_Rush/src/img/ci_dmr> %1',    '%2 <bitmap:Add-ons/Gamemode_Core_Rush/src/img/ci_dmr> %1',0.2,1);
+AddDamageType("LaserPistol",   '<bitmap:Add-ons/Weapon_Package_Marker_Lasers/src/ci/ci_pistol> %1',    '%2 <bitmap:Add-ons/Weapon_Package_Marker_Lasers/src/ci/ci_pistol> %1',0.2,1);
+AddDamageType("LaserSMG",   '<bitmap:Add-ons/Weapon_Package_Marker_Lasers/src/ci/ci_smg> %1',    '%2 <bitmap:Add-ons/Weapon_Package_Marker_Lasers/src/ci/ci_smg> %1',0.2,1);
+AddDamageType("LaserRifle",   '<bitmap:Add-ons/Weapon_Package_Marker_Lasers/src/ci/ci_rifle> %1',    '%2 <bitmap:Add-ons/Weapon_Package_Marker_Lasers/src/ci/ci_rifle> %1',0.2,1);
+AddDamageType("droneBurstGun",   '<bitmap:Add-ons/Weapon_Package_Marker_Lasers/src/ci/ci_burstgun> %1',    '%2 <bitmap:Add-ons/Weapon_Package_Marker_Lasers/src/ci/ci_burstgun> %1',0.2,1);
+AddDamageType("droneRifleGun",   '<bitmap:Add-ons/Weapon_Package_Marker_Lasers/src/ci/ci_riflegun> %1',    '%2 <bitmap:Add-ons/Weapon_Package_Marker_Lasers/src/ci/ci_riflegun> %1',0.2,1);
 
 //common datablocks
 exec("./fx/emitters.cs");

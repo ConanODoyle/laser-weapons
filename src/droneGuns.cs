@@ -1,6 +1,8 @@
 datablock ProjectileData(droneSMGProjectile : ChargeLaserSMGProjectile)
 {
-	directDamage = 5;
+	directDamage = 8;
+	directDamageType    = $DamageType::droneBurstGun;
+	radiusDamageType    = $DamageType::droneBurstGun;
 };
 
 datablock ShapeBaseImageData(droneBurstGunImage : SimpleChargeImageFramework_Auto)
@@ -76,6 +78,8 @@ function drone_SMGSubFire(%this, %obj, %slot, %count, %left)
 datablock ProjectileData(droneRifleProjectile : ChargeLaserRifleProjectile)
 {
 	directDamage = 20;
+	directDamageType    = $DamageType::droneRifleGun;
+	radiusDamageType    = $DamageType::droneRifleGun;
 };
 
 datablock ShapeBaseImageData(droneRifleGunImage : SimpleChargeImageFramework_Auto)

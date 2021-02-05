@@ -2,8 +2,8 @@
 datablock ProjectileData(ChargeLaserPistolProjectile)
 {
 	directDamage        = 15;
-	directDamageType    = $DamageType::Pistol;
-	radiusDamageType    = $DamageType::Pistol;
+	directDamageType    = $DamageType::LaserPistol;
+	radiusDamageType    = $DamageType::LaserPistol;
 
 	brickExplosionRadius = 0;
 	brickExplosionImpact = true;
