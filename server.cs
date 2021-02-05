@@ -10,11 +10,14 @@ exec("./lib/speedUtils.cs");
 exec("./lib/objectColors.cs");
 exec("./lib/vectorUtils.cs");
 
-%errorA = ForceRequiredAddOn("Vehicle_Jeep");
-
-if(%errorA == $Error::AddOn_Disabled)
+if (isFunction(RTB_registerPref))
 {
-	JeepVehicle.uiName = "";
+	RTB_registerPref("Max player drone count",			"Marker Lasers",	"$Pref::Server::MarkerLasers::MaxDroneCount",		"int 1 12",		"Server_MarkerLasers",	2,			0,			0);
+	RTB_registerPref("Enable click to recover drone",	"Marker Lasers",	"$Pref::Server::MarkerLasers::ClickRecoverDrone",	"bool",			"Server_MarkerLasers",	1,			0,			0);
+} else {
+	if($Pref::Server::MarkerLasers::MaxDroneCount $= "")		$Pref::Server::MarkerLasers::MaxDroneCount = 2;
+	if($Pref::Server::MarkerLasers::ClickRecoverDrone $= "")	$Pref::Server::MarkerLasers::ClickRecoverDrone = 1;
 }
 
 exec("./src/exec.cs");
+

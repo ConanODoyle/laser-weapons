@@ -1,4 +1,3 @@
-$MaxDroneCount = 2;
 if (!isObject($LaserDroneSimSet))
 {
 	$LaserDroneSimSet = new SimSet();
@@ -134,29 +133,32 @@ package ChargeLaserDrones
 {
 	function Player::activateStuff(%pl)
 	{
-		%mask = $TypeMasks::FxBrickObjectType | $TypeMasks::PlayerObjectType;
-		%start = %pl.getEyePoint();
-		%vec = %pl.getEyeVector();
-		%end = vectorAdd(%start, vectorScale(%vec, 8 * getWord(%pl.getScale(), 2)));
-		%search = containerRayCast(%start, %end, %mask, %pl);
-		%victim = getWord(%search, 0);
-		if (isObject(%victim) && %victim.isLaserTurret && %victim.sourceObject == %pl)
+		if ($Pref::Server::MarkerLasers::ClickRecoverDrone)
 		{
-			%i = new Item()
+			%mask = $TypeMasks::FxBrickObjectType | $TypeMasks::PlayerObjectType;
+			%start = %pl.getEyePoint();
+			%vec = %pl.getEyeVector();
+			%end = vectorAdd(%start, vectorScale(%vec, 8 * getWord(%pl.getScale(), 2)));
+			%search = containerRayCast(%start, %end, %mask, %pl);
+			%victim = getWord(%search, 0);
+			if (isObject(%victim) && %victim.isLaserTurret && %victim.sourceObject == %pl)
 			{
-				dataBlock = %victim.itemDB;
-			};
-			MissionCleanup.add(%i);
-			%i.setTransform(%pl.getHackPosition());
-			%i.schedulePop();
-			%i.sourceObject = %victim.sourceObject;
-			%i.client = %victim.sourceClient;
-			%i.bl_id = %i.client.bl_id;
-			%i.minigame = %i.client.minigame;
-			%i.setScale(%victim.getScale());
+				%i = new Item()
+				{
+					dataBlock = %victim.itemDB;
+				};
+				MissionCleanup.add(%i);
+				%i.setTransform(%pl.getHackPosition());
+				%i.schedulePop();
+				%i.sourceObject = %victim.sourceObject;
+				%i.client = %victim.sourceClient;
+				%i.bl_id = %i.client.bl_id;
+				%i.minigame = %i.client.minigame;
+				%i.setScale(%victim.getScale());
 
-			%victim.spawnExplosion(spawnProjectile, 1);
-			%victim.delete();
+				%victim.spawnExplosion(spawnProjectile, 1);
+				%victim.delete();
+			}
 		}
 		return parent::activateStuff(%pl);
 	}
@@ -436,7 +438,7 @@ function Player::spawnLaserDrone(%pl, %position, %rightImage, %leftImage, %faceV
 	$LaserDroneSimSet.add(%bot);
 	%droneSet.add(%bot);
 
-	if (%droneSet.getCount() > $MaxDroneCount)
+	if (%droneSet.getCount() > $Pref::Server::MarkerLasers::MaxDroneCount)
 	{
 		%oldestTime = getSimTime();
 		%oldest = %bot;

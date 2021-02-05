@@ -118,7 +118,11 @@ function droneBurstGunDeployImage::onMount(%this, %obj, %slot)
 	%obj.playThread(1, armReadyBoth);
 	if (isObject(%obj.client))
 	{
-		%obj.client.centerprint("<br><br><br><font:Consolas:16>\c6[[ CLICK TO DEPLOY ]] <br>\c2[[ CLICK DEPLOYED DRONE TO PICK UP]]", 6);
+		if ($Pref::Server::ClickRecoverDrone)
+		{
+			%pickup = " <br>\c2[[ CLICK DEPLOYED DRONE TO PICK UP]]";
+		}
+		%obj.client.centerprint("<br><br><br><font:Consolas:16>\c6[[ CLICK TO DEPLOY ]]" @ %pickup, 6);
 	}
 }
 
@@ -127,7 +131,11 @@ function droneRifleGunDeployImage::onMount(%this, %obj, %slot)
 	%obj.playThread(1, armReadyBoth);
 	if (isObject(%obj.client))
 	{
-		%obj.client.centerprint("<br><br><br><font:Consolas:16>\c6[[ CLICK TO DEPLOY ]] <br>\c2[[ CLICK DEPLOYED DRONE TO PICK UP]]", 6);
+		if ($Pref::Server::ClickRecoverDrone)
+		{
+			%pickup = " <br>\c2[[ CLICK DEPLOYED DRONE TO PICK UP]]";
+		}
+		%obj.client.centerprint("<br><br><br><font:Consolas:16>\c6[[ CLICK TO DEPLOY ]]" @ %pickup, 6);
 	}
 }
 
