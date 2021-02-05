@@ -31,7 +31,7 @@ datablock ShapeBaseImageData(droneBurstGunImage : SimpleChargeImageFramework_Aut
 	shellCount = 1; //projectiles per fire state
 	
 	markerLightSupport = 1;
-	markerLightMaxRange = 128;
+	markerLightMaxRange = 64;
 	markerLightSpread = 0.0012; //defaults to .spread, defined above
 	markerLightAngleIgnore = 3.1415 * 2;
 
