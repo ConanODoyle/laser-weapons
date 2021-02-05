@@ -116,6 +116,7 @@ package MarkerlightPackage
 			}
 			%cl.centerprint("<font:Consolas:16>" @ %pre @ " <br>\c6- Light key to toggle -", 1);
 			%cl.skipOverride = getSimTime() + 1000 | 0;
+			%obj.hasPrintedAutotarget = 0;
 			return;
 		}
 
@@ -144,11 +145,12 @@ package MarkerlightPackage
 					%pre = "\c0[[ AUTOTARGET OFF ]]";
 				}
 				%obj.client.centerprint("<font:Consolas:16>" @ %pre @ " <br>\c6- Light key to toggle -", 1);
-				%obj.client.skipOverride = 0;
+				%obj.hasPrintedAutotarget = 1;
 			}
-			else if (%obj.client.skipOverride < getSimTime())
+			else if (%obj.hasPrintedAutotarget)
 			{
 				%obj.client.centerprint("", 1);
+				%obj.hasPrintedAutotarget = 0;
 			}
 		}
 
