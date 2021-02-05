@@ -11,7 +11,7 @@ datablock ProjectileData(droneDeployProjectile)
 	particleEmitter     = ChargeLaserTracer;
 
 	muzzleVelocity      = 18;
-	velInheritFactor    = 0;
+	velInheritFactor    = 1;
 	explodeOnPlayerImpact = false;
 	explodeOnDeath        = true;  
 
@@ -116,12 +116,23 @@ datablock ShapeBaseImageData(droneRifleGunDeployImage : droneBurstGunDeployImage
 function droneBurstGunDeployImage::onMount(%this, %obj, %slot)
 {
 	%obj.playThread(1, armReadyBoth);
+	if (isObject(%obj.client))
+	{
+		%obj.client.centerprint("<br><br><br><font:Consolas:16>\c6[[ CLICK TO DEPLOY ]] <br>\c2[[ CLICK DEPLOYED DRONE TO PICK UP]]", 6);
+	}
 }
 
 function droneRifleGunDeployImage::onMount(%this, %obj, %slot)
 {
 	%obj.playThread(1, armReadyBoth);
+	if (isObject(%obj.client))
+	{
+		%obj.client.centerprint("<br><br><br><font:Consolas:16>\c6[[ CLICK TO DEPLOY ]] <br>\c2[[ CLICK DEPLOYED DRONE TO PICK UP]]", 6);
+	}
 }
+
+function droneBurstGunDeployImage::onUnmount(%this, %obj, %slot) { if (isObject(%obj.client)) %obj.client.centerprint("", 1); }
+function droneRifleGunDeployImage::onUnmount(%this, %obj, %slot) { if (isObject(%obj.client)) %obj.client.centerprint("", 1); }
 
 function droneBurstGunDeployImage::onFire(%this, %obj, %slot)
 {
@@ -200,6 +211,22 @@ function droneDeployProjectile::onExplode(%this, %obj, %pos)
 	if (isFunction(%obj.sourceObject.getClassName(), "spawnLaserDrone")
 		&& %obj.sourceObject.getDamageState() $= "Enabled")
 	{
+		initContainerRadiusSearch(%pos, 1, $Typemasks::StaticShapeObjectType);
+		while (isObject(%next = containerSearchNext()))
+		{
+			if (%next.getDatablock().getName() $= "droneBotMount")
+			{
+				%i = new Item()
+				{
+					dataBlock = %obj.itemDB;
+				};
+				MissionCleanup.add(%i);
+				%i.setScale(%obj.getScale());
+				%i.setTransform(%obj.getTransform());
+				%i.schedulePop();
+				return;
+			}
+		}
 		%faceVector = vectorNormalize(vectorSub(%pos, %obj.initialPosition));
 		%obj.sourceObject.spawnLaserDrone(vectorAdd(%pos, vectorScale(%obj.hitNormal, 1)), 
 			%obj.rightImage, 
