@@ -149,6 +149,11 @@ package ChargeLaserDrones
 			MissionCleanup.add(%i);
 			%i.setTransform(%pl.getHackPosition());
 			%i.schedulePop();
+			%i.sourceObject = %victim.sourceObject;
+			%i.client = %victim.sourceClient;
+			%i.bl_id = %i.client.bl_id;
+			%i.minigame = %i.client.minigame;
+			%i.setScale(%victim.getScale());
 
 			%victim.spawnExplosion(spawnProjectile, 1);
 			%victim.delete();
