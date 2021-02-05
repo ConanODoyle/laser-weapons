@@ -139,7 +139,7 @@ datablock ItemData(ChargePistolItemBlue : ChargePistolItem)
 {
 	shapeFile = "./resources/pistolBlue.dts";
 	uiName = "Charge Pistol (B)";
-	iconName = "./resources/icon_pistol";
+	iconName = "./resources/icon_pistolBlue";
 	image = ChargePistolImageBlue;
 };
 

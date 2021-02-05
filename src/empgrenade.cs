@@ -90,7 +90,7 @@ datablock ItemData(empGrenadeItem)
 	emap = true;
 
 	uiName = "EMP Grenade";
-	iconName = "";
+	iconName = "./resources/icon_empgrenade";
 	colorShiftColor = "1 1 1 1";
 	doColorShift = false;
 

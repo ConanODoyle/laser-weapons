@@ -105,7 +105,7 @@ datablock ItemData(ChargeSMGItemBlue : ChargeSMGItem)
 {
 	shapeFile = "./resources/smgBlue.dts";
 	uiName = "Charge SMG (B)";
-	iconName = "./resources/icon_SMG";
+	iconName = "./resources/icon_smgBlue";
 	image = ChargeSMGImageBlue;
 };
 
