@@ -1,3 +1,8 @@
+datablock ProjectileData(droneSMGProjectile : ChargeLaserSMGProjectile)
+{
+	directDamage = 5;
+};
+
 datablock ShapeBaseImageData(droneBurstGunImage : SimpleChargeImageFramework_Auto)
 {
 	shapeFile = "./resources/droneBurstGun.dts";
@@ -10,7 +15,7 @@ datablock ShapeBaseImageData(droneBurstGunImage : SimpleChargeImageFramework_Aut
 	correctMuzzleVector = true;
 	className = "WeaponImage";
 
-	projectile = ChargeLaserSMGProjectile;
+	projectile = droneSMGProjectile;
 	projectileType = Projectile;
 
 	casing = gunShellDebris;
@@ -52,14 +57,8 @@ function drone_SMGSubFire(%this, %obj, %slot, %count, %left)
 		return;
 	}
 
-	if (!%left)
-	{
-		%obj.playThread(0, shiftAway);
-	}
-	else
-	{
-		%obj.playThread(1, leftRecoil);
-	}
+	if (!%left) { %obj.playThread(0, shiftAway); }
+	else { %obj.playThread(1, leftRecoil); }
 
 	SimpleChargeImage::onFire(%this, %obj, %slot);
 	cancel(%obj.subFireSchedule[%left]);
@@ -74,6 +73,11 @@ function drone_SMGSubFire(%this, %obj, %slot, %count, %left)
 
 
 
+datablock ProjectileData(droneRifleProjectile : ChargeLaserRifleProjectile)
+{
+	directDamage = 20;
+};
+
 datablock ShapeBaseImageData(droneRifleGunImage : SimpleChargeImageFramework_Auto)
 {
 	shapeFile = "./resources/droneRifleGun.dts";
@@ -86,7 +90,7 @@ datablock ShapeBaseImageData(droneRifleGunImage : SimpleChargeImageFramework_Aut
 	correctMuzzleVector = true;
 	className = "WeaponImage";
 
-	projectile = ChargeLaserRifleProjectile;
+	projectile = droneRifleProjectile;
 	projectileType = Projectile;
 
 	casing = gunShellDebris;

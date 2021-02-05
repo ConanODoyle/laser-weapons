@@ -65,3 +65,17 @@ datablock AudioProfile(empGrenadeExplosionSound)
 	description = AudioDefault3D;
 	preload = true;
 };
+
+datablock AudioProfile(droneTargetFoundSound)
+{
+	filename    = "./resources/sentryalert.wav";
+	description = AudioDefault3D;
+	preload = true;
+};
+
+datablock AudioProfile(droneIdleSound)
+{
+	filename    = "./resources/sentryLoop.wav";
+	description = AudioDefault3D;
+	preload = true;
+};

@@ -1,4 +1,4 @@
-$MaxDroneCount = 4;
+$MaxDroneCount = 2;
 if (!isObject($LaserDroneSimSet))
 {
 	$LaserDroneSimSet = new SimSet();
@@ -327,7 +327,7 @@ function droneAICheck(%drone)
 		if (isObject(%drone.target))
 		{
 			%lostTarget = 1;
-			%drone.clearAim();
+			%drone.setAimVector(%drone.getEyeVector());
 		}
 		%drone.target = "";
 		%drone.setImageTrigger(0, 0);
@@ -337,10 +337,32 @@ function droneAICheck(%drone)
 	if (%lostTarget)
 	{
 		%drone.playThread(2, passive);
+		serverPlay3D(droneIdleSound, %drone.getPosition());
+		%drone.lastPlayedPassiveSound = getSimTime();
 	}
 	if (%gainedTarget)
 	{
 		%drone.playThread(2, root);
+		serverPlay3D(droneTargetFoundSound, %drone.getPosition());
+	}
+
+	if (!isObject(%target))
+	{
+		if (%drone.lastPlayedPassiveSound + 1666 < getSimTime())
+		{
+			if (!%drone.playedSound)
+			{
+				serverPlay3D(droneIdleSound, %drone.getPosition());
+				%drone.playedSound = 1;
+			}
+			if (%drone.lastPlayedPassiveSound + (1666 * 2) < getSimTime())
+			{
+				serverPlay3D(droneIdleSound, %drone.getPosition());
+				%drone.playedSound = 0;
+				%drone.playThread(2, passive);
+				%drone.lastPlayedPassiveSound = getSimTime();
+			}
+		}
 	}
 	return (%drone.target + 0) SPC (%lostTarget + 0) SPC (%gainedTarget + 0);
 }
