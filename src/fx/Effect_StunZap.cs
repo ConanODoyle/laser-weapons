@@ -298,6 +298,7 @@ function electroZapImage::onDone(%this, %obj, %slot)
 
 function zapTarget(%obj, %color)
 {
+	%obj.setMoveFactor(0.25);
 	%obj.setNodeColor("ALL", %color);
 	%obj.playThread(2, jump);
 	%obj.setWhiteout(0.5);
