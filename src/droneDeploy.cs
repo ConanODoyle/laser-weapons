@@ -118,7 +118,7 @@ function droneBurstGunDeployImage::onMount(%this, %obj, %slot)
 	%obj.playThread(1, armReadyBoth);
 	if (isObject(%obj.client))
 	{
-		if ($Pref::Server::ClickRecoverDrone)
+		if ($Pref::Server::MarkerLasers::ClickRecoverDrone)
 		{
 			%pickup = " <br>\c2[[ CLICK DEPLOYED DRONE TO PICK UP]]";
 		}
@@ -131,7 +131,7 @@ function droneRifleGunDeployImage::onMount(%this, %obj, %slot)
 	%obj.playThread(1, armReadyBoth);
 	if (isObject(%obj.client))
 	{
-		if ($Pref::Server::ClickRecoverDrone)
+		if ($Pref::Server::MarkerLasers::ClickRecoverDrone)
 		{
 			%pickup = " <br>\c2[[ CLICK DEPLOYED DRONE TO PICK UP]]";
 		}
